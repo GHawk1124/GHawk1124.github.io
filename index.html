@@ -1,21 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Garrett Comes</title>
-    <link rel="stylesheet" href="m-dark.compiled.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  </head>
-  <body>
-    <header><nav>
-      <!-- here comes the top navbar -->
-    </nav></header>
-    <main>
-      <!-- here comes the main page content -->
-      <p>Testing</p>
-    </main>
-    <footer><nav>
-      <!-- here comes the footer navigation -->
-    </nav></footer>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Garrett Comes</title>
+  <link rel="stylesheet" href="css/m-dark.compiled.css" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,400i,600%7CSource+Sans+Pro:400,400i,600&amp;subset=latin-ext" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#22272e" />
+</head>
+
+<body>
+  <header><nav id="navigation">
+  <div class="m-container">
+    <div class="m-row">
+      <a href="https://garrettcomes.rocks/#" id="m-navbar-brand" class="m-col-t-9 m-col-m-none m-left-m">garrettcomes.rocks</a>
+      <a id="m-navbar-show" href="#navigation" title="Show navigation" class="m-col-t-3 m-hide-m m-text-right"></a>
+      <a id="m-navbar-hide" href="#" title="Hide navigation" class="m-col-t-3 m-hide-m m-text-right"></a>
+      <div id="m-navbar-collapse" class="m-col-t-12 m-show-m m-col-m-none m-right-m">
+        <div class="m-row">
+          <ol class="m-col-t-6 m-col-m-none">
+            <li><a href="https://garrettcomes.rocks/#">Home</a></li>
+            <li>
+              <a href="https://garrettcomes.rocks/projects">Projects</a>
+              <ol>
+                <li><a href="https://garrettcomes.rocks/wordle">Wordle</a></li>
+              </ol>
+            </li>
+            <li><a href="https://garrettcomes.rocks/blog">Blog</a></li>
+            <li><a href="https://github.com/GHawk1124">GitHub</a></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav></header>
+  <main>
+    <!-- here comes the main page content -->
+    <div class="m-container">
+      <div class="m-row">
+        <div class="m-col-s-6 m-col-m-3">.m-col-s-6 .m-col-m-3<br />...<br />...</div>
+        <div class="m-col-s-6 m-col-m-3">.m-col-s-6 .m-col-m-3</div>
+        <div class="m-clearfix-s"></div>
+        <div class="m-col-s-6 m-col-m-3">.m-col-s-6 .m-col-m-3<br />...</div>
+        <div class="m-col-s-6 m-col-m-3">.m-col-s-6 .m-col-m-3<br />...</div>
+      </div>
+
+      <div class="m-col-s-6 m-center-s m-col-m-4 m-right-m">
+        .m-col-s-6 .m-center-s .m-col-m-4 .m-right-m
+      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat.</p>
+      <div class="m-clearfix-m"></div>
+
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean id elit
+        posuere, consectetur magna congue, sagittis est. Pellentesque est neque,
+        aliquet nec consectetur in, mattis ac diam. Aliquam placerat justo ut purus
+        interdum, ac placerat lacus consequat.</p>
+
+      <blockquote>
+        <p>Ut dictum enim posuere metus porta, et aliquam ex condimentum.
+          Proin sagittis nisi leo, ac pellentesque purus bibendum sit
+          amet.</p>
+      </blockquote>
+
+      <p class="m-poem m-spacing-150">
+        Curabitur<br />
+        sodales<br />
+        arcu<br />
+        elit</p>
+
+      <p class="m-noindent">Mauris id suscipit mauris, in scelerisque lectus. Aenean
+        nec nunc eu sem tincidunt imperdiet ut non elit. Integer nisi tellus,
+        ullamcorper vitae euismod quis, venenatis eu nulla.</p>
+
+      <ul>
+        <li>Item 1</li>
+        <li>
+          Item 2
+          <ol>
+            <li>An item</li>
+            <li>Another item</li>
+          </ol>
+        </li>
+        <li>Item 3</li>
+      </ul>
+
+      <ol class="m-unstyled">
+        <li>Item of an unstyled list</li>
+        <li>Another item of an unstyled list</li>
+      </ol>
+      <dl class="m-diary">
+        <dt>07:30:15</dt>
+        <dd>Woke up. The hangover is crazy today.</dd>
+        <dt>13:47:45</dt>
+        <dd>Got up from bed. Trying to find something to eat.</dd>
+        <dt>23:34:13</dt>
+        <dd>Finally put my pants on. Too late.</dd>
+      </dl>
+
+      <h1>Heading 1 <span class="m-thin">with subtitle</span></h1>
+      <h2>Heading 2 <span class="m-thin">with subtitle</span></h2>
+      <h3>Heading 3 <span class="m-thin">with subtitle</span></h3>
+      <h4>Heading 4 <span class="m-thin">with subtitle</span></h4>
+      <h5>Heading 5 <span class="m-thin">with subtitle</span></h5>
+      <h6>Heading 6 <span class="m-thin">with subtitle</span></h6>
+
+      <hr />
+      <p class="m-transition">~ ~ ~</p>
+
+      <pre class="m-code">
+        int main() {
+            return 0;
+        }
+        </pre>
+
+      <p>
+        As also noted in the court case of <em>Mondays vs The Working People</em>
+        <a href="#ref1" class="m-footnote" id="ref1-backref">1</a>, the transition
+        between the weekend and a working day has a similar impact on overall
+        happines as a transition between holidays and working days, however not as
+        significant <a href="#ref2" class="m-footnote" id="ref2-backref">2</a>.
+        This is a common theme of small talk conversations, together with
+        weather <a href="#ref1" class="m-footnote" id="ref1-backref2">1</a>
+        <a href="#ref3" class="m-footnote" id="ref3-backref">3</a>.
+      </p>
+      <dl class="m-footnote">
+        <dt id="ref1">1.</dt>
+        <dd>
+          <span class="m-footnote">^ <a href="#ref1-backref">a</a>
+            <a href="#ref1-backref2">b</a></span> Mondays vs The Working People,
+          The Arizona Highest Court, 2019
+        </dd>
+        <dt id="ref2">2.</dt>
+        <dd>
+          <span class="m-footnote"><a href="#ref2-backref">^</a></span>
+          <a href="https://garfield.com/comic/2014/05/26">Garfield; Monday,
+            May 26, 2014</a>
+        </dd>
+        <dt id="ref3">3.</dt>
+        <dd>
+          <span class="m-footnote"><a href="#ref3-backref">^</a></span> From a
+          conversation overheard this very morning.
+        </dd>
+      </dl>
+
+      in&shy;com&shy;pre&shy;hen&shy;si&shy;bil&shy;i&shy;ties
+
+      in<wbr/>com<wbr/>pre<wbr/>hen<wbr/>si<wbr/>bil<wbr/>i<wbr/>ties
+
+      <a href="http://…" class="m-link-wrap">
+        llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk
+      </a>
+
+      A <a href="#">link</a>, <em>emphasised text</em>, <strong>strong text</strong>,
+      <abbr title="abbreviation">abbr</abbr> shown inside a normal text flow to
+      verify that they don't break text flow. Then there is <small>small text</small>,
+      <sup>super</sup>, <sub>sub</sub> and <s>that is probably all I can think of
+        right now</s> oh, there is also <mark>marked text</mark> and
+      <code>int a = some_code();</code>.
+
+      <p class="m-text-center m-text m-dim">
+        There is a <a href="#" class="m-flat">hidden</a> link.
+      </p>
+
+      <div class="m-row">
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-default">
+            <h3>Default block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-primary">
+            <h3>Primary block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-success">
+            <h3>Success block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-warning">
+            <h3>Warning block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-danger">
+            <h3>Danger block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-info">
+            <h3>Info block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-dim">
+            <h3>Dim block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-block m-flat">
+            <h3>Flat block</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultrices a erat eu suscipit. <a
+              href="#">Link.</a>
+          </aside>
+        </div>
+      </div>
+
+      <div class="m-block m-badge m-success">
+        <img src="author.jpg" alt="The Author" />
+        <h3>About the author</h3>
+        <p><a href="#">The Author</a> is ...</p>
+      </div>
+
+      <div class="m-row">
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-default">
+            <h3>Default note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-primary">
+            <h3>Primary note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-success">
+            <h3>Success note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-warning">
+            <h3>Warning note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-danger">
+            <h3>Danger note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-info">
+            <h3>Info note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-note m-dim">
+            <h3>Dim note</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <aside class="m-frame">
+            <h3>Frame</h3>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Link.</a>
+          </aside>
+        </div>
+      </div>
+
+      <div class="m-row">
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-default m-noindent">Default text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Vivamus ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a>
+          </p>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-primary m-noindent">Primary text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Vivamus ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a>
+          </p>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-success m-noindent">Success text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Vivamus ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a>
+          </p>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-warning m-noindent">Warning text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Vivamus ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a>
+          </p>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-danger m-noindent">Danger text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Vivamus ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a>
+          </p>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-info m-noindent">Info text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Vivamus ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a>
+          </p>
+        </div>
+        <div class="m-col-m-3 m-col-s-6">
+          <p class="m-text m-dim m-noindent">Dim text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
+            ultrices a erat eu suscipit. Aliquam pharetra imperdiet tortor sed vehicula. <a href="#">Link.</a></p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+<footer><nav>
+  <div class="m-container">
+    <div class="m-row">
+      <div class="m-col-s-3 m-col-t-6">
+        <h3><a href="#">garrettcomes.rocks</a></h3>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Showcase</a></li>
+        </ul>
+      </div>
+      <div class="m-col-s-3 m-col-t-6">
+        <h3><a href="#">Download</a></h3>
+        <ul>
+          <li><a href="#">Packages</a></li>
+          <li><a href="#">Source</a></li>
+        </ul>
+      </div>
+      <div class="m-clearfix-t"></div>
+      <div class="m-col-s-3 m-col-t-6">
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="mailto:garrett@garrettcomes.com">E-mail</a></li>
+          <li><a href="https://github.com/GHawk1124">GitHub</a></li>
+        </ul>
+      </div>
+      <div class="m-col-s-3 m-col-t-6">
+        <h3><a href="#">Blog</a></h3>
+        <ul>
+          <li><a href="#">News</a></li>
+          <li><a href="#">Archive</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="m-row">
+      <div class="m-col-l-10 m-push-l-1">
+        <p>Copyright &copy; <a href="mailto:garrett@garrettcomes.com">Garrett Comes</a>,
+        2022. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</nav></footer>
+</body>
+
 </html>
