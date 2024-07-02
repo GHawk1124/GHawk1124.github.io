@@ -334,9 +334,9 @@ class FluidSimulation {
 var scene = {
     gravityForce: -0,
     fluidDensity: 1.225,
-    gridResolution: 300,
+    gridResolution: 100,
     timeStep: 1.0 / 120.0,
-    iterationCount: 500,
+    iterationCount: 300,
     frameCount: 0,
     relaxationFactor: 1.0,
     obstacleRadius: 0.15,
