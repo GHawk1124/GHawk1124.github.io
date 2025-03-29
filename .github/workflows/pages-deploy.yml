@@ -54,8 +54,7 @@ jobs:
         run: |
           bundle exec htmlproofer _site \
             \-\-disable-external \
-            \-\-ignore-urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/" \
-            \-\-ignore-files "/_site${{ steps.pages.outputs.base_path }}\/amint\/.*/"
+            \-\-ignore-urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -78,7 +77,7 @@ jobs:
         run: cd amint && npm run build
         
       - name: Move Tauri dist to site
-        run: rm -rf "_site${{ steps.pages.outputs.base_path }}/amint" && mv amint/dist "_site${{ steps.pages.outputs.base_path }}/amint"
+        run: mkdir -p "_site${{ steps.pages.outputs.base_path }}/amint/dist" && cp -r amint/dist/* "_site${{ steps.pages.outputs.base_path }}/amint/dist/"
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

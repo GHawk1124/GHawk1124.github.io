@@ -45,6 +45,16 @@ social:
     # - https://www.facebook.com/username
     - https://www.linkedin.com/in/garrett-comes
 
+# Exclude directories and/or files from being processed by Jekyll
+exclude:
+  - amint/
+  - simulator/
+  - .gitignore
+  - LICENSE
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+
 # Site Verification Settings
 webmaster_verifications:
   google: # fill in your Google verification code
