@@ -77,8 +77,8 @@ jobs:
       - name: Build Tauri app
         run: cd amint && npm run build
         
-      - name: Copy Tauri dist to site
-        run: cp -r amint/dist "_site${{ steps.pages.outputs.base_path }}/amint"
+      - name: Move Tauri dist to site
+        run: rm -rf "_site${{ steps.pages.outputs.base_path }}/amint" && mv amint/dist "_site${{ steps.pages.outputs.base_path }}/amint"
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
