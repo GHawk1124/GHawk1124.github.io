@@ -499,7 +499,7 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo
                 <span className="truncate text-sm font-medium">{userInfo?.name || "User Account"}</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="z-50">
+            <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Account</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -508,7 +508,15 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onLogout}>Logout</AlertDialogAction>
+                <AlertDialogAction 
+                  onClick={() => {
+                    if (onLogout) {
+                      onLogout();
+                    }
+                  }}
+                >
+                  Logout
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
