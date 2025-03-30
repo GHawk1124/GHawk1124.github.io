@@ -29,8 +29,18 @@ import {
   ChevronRight,
   File,
   Trash2,
-  LogOut,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Message {
   id: string;
@@ -484,37 +494,31 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo
             Settings
           </Button>
         
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start">
-                <Avatar className="h-6 w-6 mr-2">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start items-center space-x-2 p-2">
+                <Avatar className="h-6 w-6">
                   <AvatarImage src={userInfo?.picture || "https://github.com/shadcn.png"} alt={userInfo?.name || "User"} />
                   <AvatarFallback>
                     <User className="h-4 w-4"/>
                   </AvatarFallback>
                 </Avatar>
-                <span className="truncate">{userInfo?.name || "User Account"}</span>
+                <span className="truncate text-sm font-medium">{userInfo?.name || "User Account"}</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="start" side="top">
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleViewChange('settings')}>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="text-red-500 focus:text-red-600 focus:bg-red-500/10"
-                onClick={onLogout}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Account</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Logged in as {userInfo?.name || "User Account"} ({userInfo?.email || ""}). Do you want to log out?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onLogout}>Logout</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </aside>
       
