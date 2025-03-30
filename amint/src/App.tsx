@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatArea } from "@/components/ChatArea";
 import { Toaster } from "@/components/ui/toaster";
+import { LoginForm } from "@/components/login-form";
 
 interface Message {
   id: string;
@@ -15,7 +16,15 @@ interface ChatHistoryItem {
   messages: Message[];
 }
 
+interface UserInfo {
+  name: string;
+  email: string;
+  picture: string;
+}
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
@@ -121,6 +130,38 @@ function App() {
     setCurrentChatId(chatId);
   };
 
+  const handleLogin = (info?: UserInfo) => {
+    console.log("App: handleLogin called.", info ? "Received UserInfo:" : "No UserInfo received.", info);
+    // Store user info if available from Google login
+    if (info) {
+      // Only authenticate if valid info is received
+      setIsAuthenticated(true);
+      setUserInfo(info);
+      console.log("User logged in:", info.name);
+    } else {
+      // If info is undefined (login failed or cancelled), do not authenticate
+      console.warn("Login attempt failed or did not provide user info.");
+      setIsAuthenticated(false); // Ensure not authenticated
+      setUserInfo(null);        // Ensure no user info is set
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserInfo(null);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-background text-foreground">
+        <div className="w-full max-w-md p-4">
+          <LoginForm onLogin={handleLogin} />
+        </div>
+        <Toaster />
+      </div>
+    );
+  }
+
   return (
     // Main container covering the whole screen height and width, using flex
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
@@ -129,6 +170,8 @@ function App() {
         chatHistory={chatHistory}
         onNewChat={handleNewChat}
         onLoadChat={handleLoadChat}
+        onLogout={handleLogout}
+        userInfo={userInfo}
       />
 
       {/* ChatArea component - takes remaining space with full width */}

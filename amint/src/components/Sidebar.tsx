@@ -29,6 +29,7 @@ import {
   ChevronRight,
   File,
   Trash2,
+  LogOut,
 } from "lucide-react";
 
 interface Message {
@@ -55,9 +56,15 @@ interface SidebarProps {
   chatHistory: ChatHistoryItem[];
   onNewChat: () => void;
   onLoadChat: (chatId: string) => void;
+  onLogout?: () => void;
+  userInfo?: {
+    name: string;
+    email: string;
+    picture: string;
+  } | null;
 }
 
-export function Sidebar({ chatHistory, onNewChat, onLoadChat }: SidebarProps) {
+export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo }: SidebarProps) {
   const [activeView, setActiveView] = useState<'chat' | 'settings' | 'upload' | 'hopfield'>('chat');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -481,12 +488,12 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat }: SidebarProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start">
                 <Avatar className="h-6 w-6 mr-2">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                  <AvatarImage src={userInfo?.picture || "https://github.com/shadcn.png"} alt={userInfo?.name || "User"} />
                   <AvatarFallback>
                     <User className="h-4 w-4"/>
                   </AvatarFallback>
                 </Avatar>
-                <span>User Account</span>
+                <span className="truncate">{userInfo?.name || "User Account"}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="start" side="top">
@@ -499,7 +506,11 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat }: SidebarProps) {
                 Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-500 focus:text-red-600 focus:bg-red-500/10">
+              <DropdownMenuItem 
+                className="text-red-500 focus:text-red-600 focus:bg-red-500/10"
+                onClick={onLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
