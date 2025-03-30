@@ -499,7 +499,7 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo
                 <span className="truncate text-sm font-medium">{userInfo?.name || "User Account"}</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="z-50">
               <AlertDialogHeader>
                 <AlertDialogTitle>Account</AlertDialogTitle>
                 <AlertDialogDescription>
