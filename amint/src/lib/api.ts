@@ -29,11 +29,10 @@ async function handleApiResponse<T>(response: Response): Promise<T> {
 // User Authentication
 export async function loginWithGoogle(credential: string) {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login/google`, {
+    const response = await myFetch(`${API_BASE_URL}/auth/login/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "skip_zrok_interstitial": "true",
       },
       body: JSON.stringify({ credential }),
       credentials: "include",
@@ -53,11 +52,10 @@ export async function loginWithGoogle(credential: string) {
 
 export async function loginDev() {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/dev-login`, {
+    const response = await myFetch(`${API_BASE_URL}/auth/dev-login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "skip_zrok_interstitial": "true",
       },
       credentials: "include",
     });
@@ -76,7 +74,7 @@ export async function loginDev() {
 
 export async function logout() {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+    const response = await myFetch(`${API_BASE_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -91,7 +89,7 @@ export async function logout() {
 // Document Management
 export async function listDocuments(userId: string) {
   try {
-    const response = await fetch(`${API_BASE_URL}/documents?user_id=${userId}`, {
+    const response = await myFetch(`${API_BASE_URL}/documents?user_id=${userId}`, {
       credentials: "include",
     });
     
@@ -104,11 +102,10 @@ export async function listDocuments(userId: string) {
 
 export async function createDocument(userId: string, data: { title: string, source_type: string }) {
   try {
-    const response = await fetch(`${API_BASE_URL}/documents`, {
+    const response = await myFetch(`${API_BASE_URL}/documents`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "skip_zrok_interstitial": "true",
       },
       body: JSON.stringify({
         user_id: userId,
@@ -133,11 +130,10 @@ export async function uploadDocument(userId: string, file: File, title: string) 
     
     console.log(`Attempting to upload to: ${API_BASE_URL}/documents/upload`);
     
-    const response = await fetch(`${API_BASE_URL}/documents/upload`, {
+    const response = await myFetch(`${API_BASE_URL}/documents/upload`, {
       method: "POST",
       body: formData,
       credentials: 'include',
-      // Don't set Content-Type header - browser will set it with boundary for FormData
     });
     
     // Log detailed response information
@@ -165,7 +161,7 @@ export async function uploadDocument(userId: string, file: File, title: string) 
 
 export async function getNetworkStats(userId: string) {
   try {
-    const response = await fetch(`${API_BASE_URL}/network/stats?user_id=${userId}`, {
+    const response = await myFetch(`${API_BASE_URL}/network/stats?user_id=${userId}`, {
       credentials: "include",
     });
     
@@ -196,7 +192,7 @@ export async function queryMemories(userId: string, params: {
       queryParams.append("k", params.k.toString());
     }
     
-    const response = await fetch(`${API_BASE_URL}/memories/query?${queryParams.toString()}`, {
+    const response = await myFetch(`${API_BASE_URL}/memories/query?${queryParams.toString()}`, {
       credentials: "include",
     });
     
@@ -228,3 +224,17 @@ export async function queryMemories(userId: string, params: {
 //   clearTimeout(id);
 //   return response;
 // }
+
+async function myFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
+  const defaultHeaders = {
+    "skip_zrok_interstitial": "true",
+  };
+  const mergedInit: RequestInit = {
+    ...init,
+    headers: {
+      ...(init && init.headers ? init.headers : {}),
+      ...defaultHeaders,
+    },
+  };
+  return fetch(input, mergedInit);
+}
