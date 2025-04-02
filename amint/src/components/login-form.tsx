@@ -8,10 +8,11 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card"
-// import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
 import { useEffect, useRef, useState } from "react"
 import { loginDev } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
   onLogin?: (userInfo?: { name: string; email: string; picture: string; user_id: string }) => void;
@@ -96,23 +97,70 @@ export function LoginForm({
 
   }, []); // Empty dependency array: run only once on mount
 
-  const handleGoogleResponse = (response: google.accounts.id.CredentialResponse) => {
+  const handleGoogleResponse = async (response: google.accounts.id.CredentialResponse) => {
     console.log("LoginForm: handleGoogleResponse triggered. Raw response:", response);
-    // Decode the JWT to get user information
-    const payload = parseJwt(response.credential);
-    console.log("LoginForm: Parsed Payload:", payload);
     
-    if (onLogin && payload) {
-      // Pass the necessary info up, including a user_id
-      onLogin({
-        name: payload.name,      // Standard OIDC claim
-        email: payload.email,    // Standard OIDC claim
-        picture: payload.picture, // Standard OIDC claim
-        user_id: payload.sub || payload.email // Use Google's subject ID or fall back to email
+    try {
+      // Decode the JWT to get user information
+      const payload = parseJwt(response.credential);
+      console.log("LoginForm: Parsed Payload:", payload);
+      
+      if (!payload || !payload.email) {
+        throw new Error("Failed to parse JWT or missing email in payload");
+      }
+      
+      // Create a unique ID for this Google user
+      const googleUserId = `google_${payload.sub || payload.email.split('@')[0]}`;
+      
+      // Call the backend API to register/login the Google user
+      const apiResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: googleUserId,
+          email: payload.email,
+          name: payload.name || payload.email.split('@')[0],
+          picture: payload.picture || "",
+          access_token: response.credential,
+          refresh_token: null,
+          token_expiry: null
+        }),
       });
-    } else if (onLogin) {
-      console.error("Failed to parse JWT or onLogin not provided.");
-      onLogin(undefined); // Indicate login failure or lack of info
+      
+      if (!apiResponse.ok) {
+        const errorText = await apiResponse.text();
+        throw new Error(`Backend login failed: ${apiResponse.status} - ${errorText}`);
+      }
+      
+      const userData = await apiResponse.json();
+      console.log("LoginForm: Backend login successful:", userData);
+      
+      if (onLogin) {
+        // Pass the backend-provided user_id along with other user details
+        onLogin({
+          name: payload.name || "Google User",
+          email: payload.email,
+          picture: payload.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(payload.name || payload.email)}&background=random`,
+          user_id: userData.user_id // Use the user_id from the backend
+        });
+      }
+    } catch (error) {
+      console.error("LoginForm: Authentication error:", error);
+      
+      // Call onLogin with undefined to signal login failure
+      if (onLogin) {
+        onLogin(undefined);
+      }
+      
+      // Show error toast
+      const { toast } = useToast();
+toast({
+  title: "Login Failed",
+  description: error instanceof Error ? error.message : "Authentication error occurred",
+  variant: "destructive",
+});
     }
   };
 

@@ -37,7 +37,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { uploadDocument } from "@/lib/api";
+import { useEffect } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const isDevelopment = import.meta.env.DEV;
 
 interface Message {
@@ -88,6 +90,37 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo
   const [isAddingDummyFiles, setIsAddingDummyFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [_networkStats, setNetworkStats] = useState({ 
+    memory_count: 0, 
+    document_count: 0,
+    last_updated: new Date()
+  });
+
+  useEffect(() => {
+    if (userInfo?.user_id) {
+      fetchNetworkStats();
+    }
+  }, [userInfo]);
+
+  const fetchNetworkStats = async () => {
+    if (!userInfo?.user_id) return;
+    
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/network/stats?user_id=${userInfo.user_id}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch network stats");
+      
+      const data = await response.json();
+      setNetworkStats({
+        memory_count: data.memory_count,
+        document_count: data.document_count,
+        last_updated: new Date()
+      });
+    } catch (error) {
+      console.error("Error fetching network stats:", error);
+    }
+  };
 
   const handleViewChange = (view: 'chat' | 'settings' | 'upload' | 'hopfield') => {
     setActiveView(view);
@@ -231,24 +264,23 @@ export function Sidebar({ chatHistory, onNewChat, onLoadChat, onLogout, userInfo
   };
 
   const handleMemoryQuery = async () => {
-    if (!memoryQuery.trim()) return;
-
+    if (!memoryQuery.trim() || !userInfo?.user_id) return;
+    
     setIsSearching(true);
-
     try {
-      // Replace this with your actual API endpoint and user ID
-      const userId = "dev_user_123"; // This should come from your authentication system
+      // Use the user_id from props instead of hardcoded value
+      const userId = userInfo.user_id;
       const response = await fetch(
-        `http://localhost:8000/memories/query?user_id=${userId}&query_text=${encodeURIComponent(memoryQuery)}&k=5`
+        `${API_BASE_URL}/memories/query?user_id=${userId}&query_text=${encodeURIComponent(memoryQuery)}&k=5`
       );
-
+      
       if (!response.ok) {
         throw new Error('Failed to query memories');
       }
-
+      
       const data = await response.json();
       setMemoryResults(data.results || []);
-
+      
       if (data.results.length === 0) {
         toast({
           title: "No results found",
