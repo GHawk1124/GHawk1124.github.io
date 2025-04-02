@@ -128,15 +128,34 @@ export async function uploadDocument(userId: string, file: File, title: string) 
     formData.append("user_id", userId);
     formData.append("title", title);
     
+    console.log(`Attempting to upload to: ${API_BASE_URL}/documents/upload`);
+    
     const response = await fetch(`${API_BASE_URL}/documents/upload`, {
       method: "POST",
       body: formData,
-      credentials: "include",
+      credentials: 'include',
+      // Don't set Content-Type header - browser will set it with boundary for FormData
     });
+    
+    // Log detailed response information
+    console.log(`Upload response status: ${response.status}`);
     
     return handleApiResponse<{ document_id: string, title: string, memories_added: number }>(response);
   } catch (error) {
-    console.error("Error uploading document:", error);
+    console.error("Detailed upload error:", error);
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      toast({
+        title: "Connection Error",
+        description: "Cannot connect to the server. Please check your internet connection or contact support.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Unknown error uploading document",
+        variant: "destructive",
+      });
+    }
     throw error;
   }
 }
