@@ -13,8 +13,7 @@ on:
   workflow_dispatch:
 
 env:
-  VITE_API_BASE_URL: https://amint-server.onrender.com
-
+  VITE_API_BASE_URL: https://amintserver.share.zrok.io
 permissions:
   contents: read
   pages: write
