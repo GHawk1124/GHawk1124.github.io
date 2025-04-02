@@ -33,6 +33,7 @@ export async function loginWithGoogle(credential: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "skip_zrok_interstitial": "true",
       },
       body: JSON.stringify({ credential }),
       credentials: "include",
@@ -56,6 +57,7 @@ export async function loginDev() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "skip_zrok_interstitial": "true",
       },
       credentials: "include",
     });
@@ -106,6 +108,7 @@ export async function createDocument(userId: string, data: { title: string, sour
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "skip_zrok_interstitial": "true",
       },
       body: JSON.stringify({
         user_id: userId,
