@@ -3,6 +3,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { ChatArea } from "@/components/ChatArea";
 import { Toaster } from "@/components/ui/toaster";
 import { LoginForm } from "@/components/login-form";
+import { useToast } from "@/hooks/use-toast";
+import { getUserFromStorage, saveUserToStorage, clearUserFromStorage } from "@/lib/userStorage";
 
 interface Message {
   id: string;
@@ -20,6 +22,7 @@ interface UserInfo {
   name: string;
   email: string;
   picture: string;
+  user_id: string; // Added user_id from our API
 }
 
 function App() {
@@ -29,6 +32,17 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [nextChatNumber, setNextChatNumber] = useState(1);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const storedUser = getUserFromStorage();
+    if (storedUser) {
+      setIsAuthenticated(true);
+      setUserInfo(storedUser);
+      console.log("User restored from storage:", storedUser.name, "User ID:", storedUser.user_id);
+    }
+  }, []);
 
   // Debug log when chat history changes
   useEffect(() => {
@@ -137,7 +151,13 @@ function App() {
       // Only authenticate if valid info is received
       setIsAuthenticated(true);
       setUserInfo(info);
-      console.log("User logged in:", info.name);
+      saveUserToStorage(info);
+      console.log("User logged in:", info.name, "User ID:", info.user_id);
+      
+      toast({
+        title: "Welcome to AMINT!",
+        description: `Logged in as ${info.name}`,
+      });
     } else {
       // If info is undefined (login failed or cancelled), do not authenticate
       console.warn("Login attempt failed or did not provide user info.");
@@ -149,6 +169,17 @@ function App() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserInfo(null);
+    clearUserFromStorage();
+    
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully"
+    });
+  };
+  
+  const handleSelectDocument = (documentId: string | null) => {
+    setSelectedDocumentId(documentId);
+    console.log(documentId ? `Selected document: ${documentId}` : "Document selection cleared");
   };
 
   if (!isAuthenticated) {
@@ -172,6 +203,7 @@ function App() {
         onLoadChat={handleLoadChat}
         onLogout={handleLogout}
         userInfo={userInfo}
+        onSelectDocument={handleSelectDocument}
       />
 
       {/* ChatArea component - takes remaining space with full width */}
@@ -179,6 +211,8 @@ function App() {
         <ChatArea 
           messages={messages}
           setMessages={setMessages}
+          userId={userInfo?.user_id}
+          selectedDocumentId={selectedDocumentId}
         />
       </div>
 

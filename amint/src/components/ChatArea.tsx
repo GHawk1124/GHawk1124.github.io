@@ -14,6 +14,8 @@ interface Message {
 interface ChatAreaProps {
     messages: Message[];
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    userId?: string; // Add this property
+    selectedDocumentId?: string | null; // Add this property
 }
 
 export function ChatArea({ messages, setMessages }: ChatAreaProps) {
@@ -50,13 +52,13 @@ export function ChatArea({ messages, setMessages }: ChatAreaProps) {
 
         // Simulate AI response after a short delay
         setTimeout(() => {
-             const aiResponse: Message = {
-                 id: (Date.now() + 1).toString(),
-                 text: `Processing your message: "${newUserMessage.text}"...`, // Replace with actual AI call
-                 sender: 'ai',
-             };
-             setMessages(prevMessages => [...prevMessages, aiResponse]);
-             setIsLoading(false);
+            const aiResponse: Message = {
+                id: (Date.now() + 1).toString(),
+                text: `Processing your message: "${newUserMessage.text}"...`, // Replace with actual AI call
+                sender: 'ai',
+            };
+            setMessages(prevMessages => [...prevMessages, aiResponse]);
+            setIsLoading(false);
         }, 1500);
     };
 
@@ -66,8 +68,8 @@ export function ChatArea({ messages, setMessages }: ChatAreaProps) {
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
-             event.preventDefault(); // Prevent newline in input
-             handleSendMessage();
+            event.preventDefault(); // Prevent newline in input
+            handleSendMessage();
         }
     };
 
@@ -84,7 +86,7 @@ export function ChatArea({ messages, setMessages }: ChatAreaProps) {
                 ) : (
                     <div className="space-y-4 w-full max-w-full">
                         {messages.map((message) => (
-                            <div 
+                            <div
                                 key={message.id}
                                 className={cn(
                                     "flex w-full",

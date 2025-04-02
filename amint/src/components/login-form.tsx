@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/card"
 // import { Input } from "@/components/ui/input"
 // import { Label } from "@/components/ui/label"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { loginDev } from "@/lib/api"
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
-  onLogin?: (userInfo?: { name: string; email: string; picture: string }) => void;
+  onLogin?: (userInfo?: { name: string; email: string; picture: string; user_id: string }) => void;
 }
 
 export function LoginForm({
@@ -22,6 +23,7 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const googleButtonRef = useRef<HTMLDivElement>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     console.log("LoginForm: useEffect running.");
@@ -101,11 +103,12 @@ export function LoginForm({
     console.log("LoginForm: Parsed Payload:", payload);
     
     if (onLogin && payload) {
-      // Pass the necessary info up
+      // Pass the necessary info up, including a user_id
       onLogin({
         name: payload.name,      // Standard OIDC claim
         email: payload.email,    // Standard OIDC claim
-        picture: payload.picture // Standard OIDC claim
+        picture: payload.picture, // Standard OIDC claim
+        user_id: payload.sub || payload.email // Use Google's subject ID or fall back to email
       });
     } else if (onLogin) {
       console.error("Failed to parse JWT or onLogin not provided.");
@@ -114,7 +117,7 @@ export function LoginForm({
   };
 
   // Function to parse JWT - basic implementation
-  const parseJwt = (token: string): { name: string; email: string; picture: string } | null => {
+  const parseJwt = (token: string): { name: string; email: string; picture: string; sub?: string } | null => {
     console.log("LoginForm: parseJwt called with token:", token ? token.substring(0, 20) + "..." : "undefined");
     try {
       const base64Url = token.split('.')[1];
@@ -132,7 +135,8 @@ export function LoginForm({
         return {
           name: parsed.name,
           email: parsed.email,
-          picture: parsed.picture
+          picture: parsed.picture,
+          sub: parsed.sub  // Add the subject ID
         };
       }
       console.warn("LoginForm: parseJwt - JWT payload missing standard claims (name, email, picture)", parsed);
@@ -145,6 +149,32 @@ export function LoginForm({
 
   // Check if we're in development mode
   const isDevelopment = import.meta.env.DEV;
+
+  // Handle development login
+  const handleDevLogin = async () => {
+    if (!onLogin) return;
+    
+    setIsLoggingIn(true);
+    try {
+      console.log("Development login button clicked");
+      // Call the dev-login endpoint to create the user in the database
+      const userData = await loginDev();
+      
+      // Pass the user information returned from the API
+      onLogin({
+        name: userData.name,
+        email: userData.email,
+        picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=random`,
+        user_id: userData.user_id
+      });
+    } catch (error) {
+      console.error("Development login failed:", error);
+      // Call onLogin with undefined to signal login failure
+      onLogin(undefined);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6 items-center", className)} {...props}>
@@ -164,21 +194,13 @@ export function LoginForm({
         {isDevelopment && (
           <CardFooter>
             {/* Bypass button for testing - only shown in development */}
-            <Button 
-              variant="secondary" 
-              className="w-full mt-2" 
-              onClick={() => {
-                console.log("Test login button clicked");
-                if (onLogin) {
-                  onLogin({
-                    name: "Test User",
-                    email: "test@example.com",
-                    picture: "https://ui-avatars.com/api/?name=Test+User&background=random"
-                  });
-                }
-              }}
+            <Button
+              variant="secondary"
+              className="w-full mt-2"
+              onClick={handleDevLogin}
+              disabled={isLoggingIn}
             >
-              Test Login (Bypass)
+              {isLoggingIn ? "Logging in..." : "Test Login (Bypass)"}
             </Button>
           </CardFooter>
         )}
