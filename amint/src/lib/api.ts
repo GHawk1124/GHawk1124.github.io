@@ -177,19 +177,21 @@ export async function queryMemories(userId: string, params: {
   query_text: string;
   document_id?: string;
   k?: number;
+  use_gemini?: boolean;
 }) {
   try {
     // Build query parameters
     const queryParams = new URLSearchParams();
     queryParams.append("user_id", userId);
     queryParams.append("query_text", params.query_text);
-    
     if (params.document_id) {
       queryParams.append("document_id", params.document_id);
     }
-    
     if (params.k) {
       queryParams.append("k", params.k.toString());
+    }
+    if (params.use_gemini) {
+      queryParams.append("use_gemini", "true");
     }
     
     const response = await myFetch(`${API_BASE_URL}/memories/query?${queryParams.toString()}`, {
@@ -204,7 +206,9 @@ export async function queryMemories(userId: string, params: {
         section_title?: string;
         timestamp?: string;
         metadata?: Record<string, any>;
-      }>
+      }>,
+      gemini_response?: string;
+      use_gemini: boolean;
     }>(response);
   } catch (error) {
     console.error("Error querying memories:", error);
