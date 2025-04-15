@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowRight, Loader2, Menu, BookOpen } from "lucide-react";
+import { ArrowRight, Loader2, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { queryMemories, type MemoryQueryResult } from "@/lib/api";
+import { queryMemories } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { FormattedMessage } from "@/components/FormattedMessage";
 import type { Message, MemoryResult } from '@/App'; // Import types
@@ -14,7 +14,7 @@ interface ChatAreaProps {
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
     userId?: string;
     selectedDocumentId?: string | null;
-    onToggleSidebar: () => void; // For mobile hamburger
+    onToggleSidebar?: () => void; // For mobile hamburger - optional since not used
 }
 
 export function ChatArea({
@@ -22,7 +22,7 @@ export function ChatArea({
     setMessages,
     userId,
     selectedDocumentId,
-    onToggleSidebar
+    // onToggleSidebar - not used in this component
 }: ChatAreaProps) {
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);

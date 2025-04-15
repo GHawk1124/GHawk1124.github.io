@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Loader2, Search, Clock, FileText, RefreshCw, AlertTriangle, Info } from
 import type { NetworkStats, NetworkDoc, UserInfo, MemoryResult } from '@/App'; // Adjust import path if needed
 import type { useToast } from "@/hooks/use-toast"; // Import type
 import { cn } from '@/lib/utils'; // Import cn
-import { queryMemories, queryFiles, type MemoryQueryResult, type FileQueryResult } from '@/lib/api'; // Use updated API functions/types
+import { queryMemories, type MemoryQueryResult } from '@/lib/api'; // Use updated API functions/types
 
 interface HopfieldPanelProps {
     networkStats: NetworkStats;

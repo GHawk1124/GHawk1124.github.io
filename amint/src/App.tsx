@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { LoginForm } from "@/components/login-form";
 import { useToast } from "@/hooks/use-toast";
 import { clearUserFromStorage, saveUserToStorage } from "@/lib/userStorage";
-import { checkSession, logoutUser, listDocuments, getNetworkStats, uploadDocument, queryMemories, getDocumentContent } from "@/lib/api"; // Ensure getDocumentContent is imported
-import { cn } from "@/lib/utils";
+import { checkSession, logoutUser, listDocuments, getNetworkStats, uploadDocument, getDocumentContent } from "@/lib/api"; // Ensure getDocumentContent is imported
+// import { cn } from "@/lib/utils"; // Not used directly in this file
 import { SettingsPanel } from "@/components/panels/SettingsPanel";
 import { UploadPanel } from "@/components/panels/UploadPanel";
 import { HopfieldPanel } from "@/components/panels/HopfieldPanel";

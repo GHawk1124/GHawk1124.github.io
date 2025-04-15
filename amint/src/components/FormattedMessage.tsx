@@ -7,7 +7,6 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { cn } from "@/lib/utils";
-import { BookOpen } from 'lucide-react';
 import type { MemoryResult } from '@/App'; // Import MemoryResult type
 import React from 'react';
 
@@ -26,7 +25,7 @@ interface Citation {
 
 export function FormattedMessage({ content, className, memories }: FormattedMessageProps) { // Accept memories prop
   const [processedContent, setProcessedContent] = useState<string>(content);
-  const [citations, setCitations] = useState<Citation[]>([]);
+  const [/*citations*/, setCitations] = useState<Citation[]>([]);
 
   // Process the content on mount or when content changes
   useEffect(() => {
@@ -56,7 +55,7 @@ export function FormattedMessage({ content, className, memories }: FormattedMess
      processed = processed.replace(
         /<antml:cite indices="([\d,]+)">(.*?)<\/antml:cite>/gs,
         (_, indicesStr, text) => {
-            const citationIndex = extractedCitations.length;
+            // const citationIndex = extractedCitations.length;
             extractedCitations.push({
                 text,
                 sources: [], // Will be populated later
@@ -139,7 +138,7 @@ export function FormattedMessage({ content, className, memories }: FormattedMess
       );
     },
      // Custom paragraph renderer - remove extra bottom margin if it contains only tags that have margins
-     p({ children, node }: any) {
+     p({ children, /*node*/ }: any) {
          // Check if paragraph only contains block elements like code blocks or divs, which already have margins
          const containsOnlyBlocks = React.Children.toArray(children).every((child: any) =>
             typeof child === 'object' && child?.type && ['pre', 'div', 'blockquote', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4'].includes(child.type)
@@ -187,33 +186,33 @@ export function FormattedMessage({ content, className, memories }: FormattedMess
   };
 
   // Render citations section if we have any mapped citations
-  const renderCitationsSection = () => {
-      // Only render if there are citations AND memories were provided to potentially map them
-      if (citations.length === 0 || !memories || memories.length === 0) return null;
+  // const renderCitationsSection = () => {
+  //     // Only render if there are citations AND memories were provided to potentially map them
+  //     if (citations.length === 0 || !memories || memories.length === 0) return null;
 
-      // Filter out citations that couldn't be mapped to any source
-      const validCitations = citations.filter(c => c.sources.length > 0);
-      if (validCitations.length === 0) return null;
+  //     // Filter out citations that couldn't be mapped to any source
+  //     const validCitations = citations.filter(c => c.sources.length > 0);
+  //     if (validCitations.length === 0) return null;
 
-      return (
-          <div className="citations-section mt-4 pt-3 border-t border-border text-xs text-muted-foreground">
-              <h4 className="font-semibold mb-2 flex items-center text-foreground/80">
-                  <BookOpen className="mr-1.5 h-4 w-4" />
-                  Cited Sources
-              </h4>
-              <ol className="pl-5 list-decimal space-y-1">
-                  {validCitations.map((citation, index) => (
-                      <li key={index} className="leading-snug">
-                           {/* Display the actual source names */}
-                          {citation.sources.join('; ')}
-                           {/* Optionally keep the original text, linked via index */}
-                          {/* <span className='ml-2 italic'>({citation.text})</span> */}
-                      </li>
-                  ))}
-              </ol>
-          </div>
-      );
-  };
+  //     return (
+  //         <div className="citations-section mt-4 pt-3 border-t border-border text-xs text-muted-foreground">
+  //             <h4 className="font-semibold mb-2 flex items-center text-foreground/80">
+  //                 <BookOpen className="mr-1.5 h-4 w-4" />
+  //                 Cited Sources
+  //             </h4>
+  //             <ol className="pl-5 list-decimal space-y-1">
+  //                 {validCitations.map((citation, index) => (
+  //                     <li key={index} className="leading-snug">
+  //                          {/* Display the actual source names */}
+  //                         {citation.sources.join('; ')}
+  //                          {/* Optionally keep the original text, linked via index */}
+  //                         {/* <span className='ml-2 italic'>({citation.text})</span> */}
+  //                     </li>
+  //                 ))}
+  //             </ol>
+  //         </div>
+  //     );
+  // };
 
 
   return (
