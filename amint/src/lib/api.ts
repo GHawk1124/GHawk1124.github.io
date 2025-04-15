@@ -295,9 +295,6 @@ async function myFetch(input: RequestInfo, init?: RequestInit): Promise<Response
   const defaultHeaders = {
     "skip_zrok_interstitial": "true",
     // Add a cache-busting timestamp for GET requests to avoid browser caching
-    "Cache-Control": "no-cache, no-store",
-    "Pragma": "no-cache",
-    "X-Requested-With": "XMLHttpRequest"
   };
   
   // For GET requests, add a timestamp parameter to the URL to avoid caching
