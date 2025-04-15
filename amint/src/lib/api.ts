@@ -39,7 +39,7 @@ export interface FileQueryResult {
     }>
 }
 
-export async function queryFiles(userId: string, params: {
+export async function queryFiles(_userId: string, params: {
     query_text: string;
     file_types?: string[];
     k?: number; // Keep k
@@ -195,7 +195,7 @@ export async function createDocument(data: { title: string, source_type: string 
 }
 
 // Memory Querying
-export async function queryMemories(userId: string, params: {
+export async function queryMemories(_userId: string, params: {
   query_text: string;
   document_id?: string;
   similarity_threshold?: number; // Use threshold

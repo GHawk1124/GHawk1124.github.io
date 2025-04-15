@@ -1,5 +1,3 @@
-// *** .\GHawk1124.github.io\amint\src\components\DocumentViewerDrawer.tsx (New File) ***
-import React from 'react';
 import {
   Drawer,
   DrawerClose,
@@ -11,7 +9,7 @@ import {
 } from "@/components/ui/drawer"; // Use Drawer for mobile-friendly bottom sheet
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, FileText, X } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';

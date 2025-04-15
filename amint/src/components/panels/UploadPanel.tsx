@@ -1,5 +1,5 @@
 // src/components/panels/UploadPanel.tsx
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState} from 'react';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
@@ -44,7 +44,7 @@ export function UploadPanel({
          if(event.target) event.target.value = ''; // Reset input
     }
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(true); };
-    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => setIsDragging(false);
+    const handleDragLeave = (_e: React.DragEvent<HTMLDivElement>) => setIsDragging(false);
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDragging(false);

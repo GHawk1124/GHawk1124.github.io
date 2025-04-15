@@ -7,7 +7,7 @@ interface MobileHeaderProps {
   onToggleSidebar: () => void;
 }
 
-export function MobileHeader({ title, onToggleSidebar }: MobileHeaderProps) {
+export function MobileHeader({ onToggleSidebar }: MobileHeaderProps) {
   return (
     // This header is ONLY visible on small screens (lg:hidden)
     <div className="flex items-center p-2 border-b border-border bg-background lg:hidden flex-shrink-0 h-14">
