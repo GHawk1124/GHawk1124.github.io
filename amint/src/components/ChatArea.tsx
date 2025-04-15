@@ -2,219 +2,219 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Menu, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { queryMemories } from "@/lib/api";
+import { queryMemories, type MemoryQueryResult } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { FormattedMessage } from "@/components/FormattedMessage";
-
-interface Memory {
-  memory_id: string;
-  text: string;
-  name: string;
-  section_title?: string;
-  timestamp?: string;
-  metadata?: Record<string, any>;
-}
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-  memories?: Memory[]; // Optional memories for context display
-}
+import type { Message, MemoryResult } from '@/App'; // Import types
 
 interface ChatAreaProps {
-  messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  userId?: string;
-  selectedDocumentId?: string | null;
+    messages: Message[];
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    userId?: string;
+    selectedDocumentId?: string | null;
+    onToggleSidebar: () => void; // For mobile hamburger
 }
 
-export function ChatArea({ messages, setMessages, userId, selectedDocumentId }: ChatAreaProps) {
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+export function ChatArea({
+    messages,
+    setMessages,
+    userId,
+    selectedDocumentId,
+    onToggleSidebar
+}: ChatAreaProps) {
+    const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const { toast } = useToast();
 
-  // Scroll to bottom when new messages are added
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      setTimeout(() => {
+    // Scroll to bottom useEffect
+    useEffect(() => {
         const scrollViewport = scrollAreaRef.current?.querySelector('div[data-radix-scroll-area-viewport]');
         if (scrollViewport) {
-          scrollViewport.scrollTop = scrollViewport.scrollHeight;
+            // Use setTimeout to ensure scrolling happens after render updates
+            setTimeout(() => {
+                scrollViewport.scrollTop = scrollViewport.scrollHeight;
+            }, 10); // Small delay often helps
         }
-      }, 0);
-    }
-  }, [messages]);
+    }, [messages]); // Trigger on messages change
 
-  const handleSendMessage = async () => {
-    if (inputValue.trim() === '' || isLoading || !userId) return;
+    // handleSendMessage
+    const handleSendMessage = async () => {
+        if (inputValue.trim() === '' || isLoading || !userId) return;
 
-    // Add user message
-    const newUserMessage: Message = {
-      id: Date.now().toString(),
-      text: inputValue,
-      sender: 'user',
+        const userMessageText = inputValue;
+        const newUserMessage: Message = { id: Date.now().toString(), text: userMessageText, sender: 'user' };
+
+        // Append user message immediately
+        setMessages(prev => [...prev, newUserMessage]);
+        setInputValue('');
+        setIsLoading(true);
+
+        // Add thinking message
+        const thinkingMessageId = (Date.now() + 1).toString();
+        const thinkingMessage: Message = { id: thinkingMessageId, text: "Thinking...", sender: 'ai' };
+        setMessages(prev => [...prev, thinkingMessage]);
+
+        try {
+            const contextMessages = messages.slice(-6).map(msg => `${msg.sender === 'user' ? 'User' : 'AI'}: ${msg.text}`).join("\n");
+            const contextualQuery = contextMessages
+                ? `Previous messages:\n${contextMessages}\n\nNew message: ${userMessageText}`
+                : userMessageText;
+
+            console.log("Sending query:", contextualQuery, "Doc ID:", selectedDocumentId);
+
+            // Call API using threshold
+            const response = await queryMemories(userId, {
+                query_text: contextualQuery,
+                document_id: selectedDocumentId || undefined,
+                similarity_threshold: 0.75, // Use threshold
+                use_gemini: true,
+                max_gemini_context: 5 // Limit context for Gemini explicitly
+            });
+
+            console.log("API Response:", response);
+
+            // Replace thinking message with actual response
+            setMessages(prev => {
+                const updatedMessages = prev.filter(msg => msg.id !== thinkingMessageId);
+                const aiResponse: Message = {
+                    id: Date.now().toString(),
+                    text: response.gemini_response || "I couldn't generate a response based on the context. Please check the retrieved sources or try rephrasing.", // Fallback
+                    sender: 'ai',
+                    // Populate the memories field (these are the ones above threshold)
+                    memories: response.results || [],
+                };
+                return [...updatedMessages, aiResponse];
+            });
+
+        } catch (error) {
+            console.error("Error querying API:", error);
+            // Remove thinking message on error
+            setMessages(prev => prev.filter(msg => msg.id !== thinkingMessageId));
+            const errorText = error instanceof Error ? error.message : "An unknown error occurred";
+            const errorMessage: Message = {
+                id: Date.now().toString(),
+                text: `Sorry, I encountered an error: ${errorText}`,
+                sender: 'ai',
+            };
+            setMessages(prev => [...prev, errorMessage]);
+            toast({ title: "Query Failed", description: errorText, variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
     };
-    setMessages(prevMessages => [...prevMessages, newUserMessage]);
-    setInputValue('');
-    setIsLoading(true);
 
-    // Add thinking message
-    const thinkingMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: "Thinking...",
-      sender: 'ai',
+    // Input handlers
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => { setInputValue(event.target.value); };
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey && !isLoading) { // Prevent send while loading
+            event.preventDefault();
+            handleSendMessage();
+        }
     };
-    setMessages(prevMessages => [...prevMessages, thinkingMessage]);
 
-    try {
-      // Query the API with Gemini integration
-      const response = await queryMemories(userId, {
-        query_text: newUserMessage.text,
-        document_id: selectedDocumentId || undefined,
-        k: 5,
-        use_gemini: true
-      });
+    // renderMemorySources helper
+    const renderMemorySources = (message: Message) => {
+        if (!message.memories || message.memories.length === 0) return null;
 
-      // Remove thinking message
-      setMessages(prevMessages => prevMessages.filter(msg => msg.id !== thinkingMessage.id));
+        // Determine if the AI response likely used the sources
+        // Simple check: if Gemini response exists and isn't a generic error/fallback
+        const likelyUsedSources = message.sender === 'ai' && message.text && !message.text.startsWith("I couldn't generate") && !message.text.startsWith("Sorry, I encountered an error");
 
-      // Format and add AI response
-      const aiResponse: Message = {
-        id: Date.now().toString(),
-        text: response.gemini_response || "I couldn't generate a response based on the available memories.",
-        sender: 'ai',
-        memories: response.results, // Store retrieved memories with the message
-      };
-      setMessages(prevMessages => [...prevMessages, aiResponse]);
-    } catch (error) {
-      // Remove thinking message
-      setMessages(prevMessages => prevMessages.filter(msg => msg.id !== thinkingMessage.id));
-      
-      // Show error message
-      const errorMessage: Message = {
-        id: Date.now().toString(),
-        text: "Sorry, I encountered an error while processing your request. Please try again.",
-        sender: 'ai',
-      };
-      setMessages(prevMessages => [...prevMessages, errorMessage]);
-      
-      // Show toast notification
-      toast({
-        title: "Query failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
-      });
-      console.error("Error querying API:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        if (!likelyUsedSources) return null; // Don't show sources if AI didn't seem to use them
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  // Helper function to render memory sources if available
-  const renderMemorySources = (message: Message) => {
-    if (!message.memories || message.memories.length === 0) return null;
-    return (
-      <div className="mt-2 pt-2 border-t border-border text-xs text-muted-foreground">
-        <div className="font-medium mb-1">Sources:</div>
-        <div className="space-y-1">
-          {message.memories.slice(0, 3).map((memory, index) => (
-            <div key={memory.memory_id} className="flex items-start">
-              <span className="mr-1">{index + 1}.</span>
-              <span className="truncate">{memory.name}{memory.section_title ? ` - ${memory.section_title}` : ''}</span>
+        return (
+            <div className="mt-3 pt-2 border-t border-border/50 text-xs text-muted-foreground">
+                <details>
+                    <summary className="font-medium cursor-pointer hover:text-foreground/80 flex items-center gap-1">
+                        <BookOpen className="mr-1.5 h-4 w-4" />
+                        Retrieved Sources ({message.memories.length}) {/* Show total retrieved count */}
+                    </summary>
+                    <div className="mt-1 space-y-1 pl-2 max-h-32 overflow-y-auto"> {/* Limit height */}
+                        {message.memories.map((memory: MemoryResult, index) => (
+                            <div key={memory.memory_id} className="flex items-start text-[11px] leading-tight">
+                                <span className="mr-1.5 font-semibold">{index + 1}.</span>
+                                <span className="truncate" title={`${memory.name}${memory.section_title ? ` - ${memory.section_title}` : ''}`}>
+                                    {memory.name}{memory.section_title ? ` - ${memory.section_title}` : ''}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </details>
             </div>
-          ))}
-          {message.memories.length > 3 && (
-            <div className="text-xs italic">+ {message.memories.length - 3} more sources</div>
-          )}
-        </div>
-      </div>
-    );
-  };
+        );
+    };
 
-  return (
-    <main className="flex flex-1 flex-col h-full w-full max-w-full overflow-hidden bg-muted/40">
-      {/* Message Display Area */}
-      <ScrollArea className="flex-1 p-4 lg:p-6 w-full overflow-y-auto" ref={scrollAreaRef}>
-        {messages.length === 0 ? (
-          <div className="flex h-full w-full absolute inset-0 items-center justify-center">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center text-foreground/70">
-              Amint: Hopfield based memory RAG
-            </h1>
-          </div>
-        ) : (
-          <div className="space-y-4 w-full max-w-full">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex w-full",
-                  message.sender === 'user' ? "justify-end" : "justify-start"
+    return (
+        <main className="flex flex-1 flex-col h-full w-full max-w-full overflow-hidden bg-muted/30 dark:bg-zinc-900/50">
+            {/* Message Display Area */}
+            <ScrollArea className="flex-1 p-4 lg:p-6 w-full overflow-y-auto" ref={scrollAreaRef}>
+                {messages.length === 0 ? (
+                    <div className="flex h-full items-center justify-center absolute inset-0 pointer-events-none px-4">
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center text-foreground/30">
+                            AMINT
+                        </h1>
+                    </div>
+                ) : (
+                    <div className="space-y-4 w-full max-w-4xl mx-auto pb-4"> {/* Centered content */}
+                        {messages.map((message) => (
+                            <div
+                                key={message.id}
+                                className={cn("flex w-full", message.sender === 'user' ? "justify-end" : "justify-start")}
+                            >
+                                <div
+                                    className={cn(
+                                        "inline-block max-w-[85%] md:max-w-[75%] rounded-lg px-3.5 py-2 text-sm shadow-sm",
+                                        message.sender === 'user'
+                                            ? "bg-primary text-primary-foreground rounded-br-none"
+                                            : "bg-card border border-border rounded-bl-none text-card-foreground"
+                                    )}
+                                >
+                                    {message.sender === 'user' ? (
+                                        <div className="break-words whitespace-pre-wrap">{message.text}</div>
+                                    ) : message.text === "Thinking..." ? (
+                                        <div className="flex items-center space-x-2 text-muted-foreground">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <span>Thinking...</span>
+                                        </div>
+                                    ) : (
+                                        // Render AI message content using FormattedMessage
+                                        // Pass memories for potential citation linking inside FormattedMessage if implemented
+                                        <FormattedMessage content={message.text} memories={message.memories} />
+                                    )}
+                                    {/* Call renderMemorySources for AI messages (excluding 'Thinking...') */}
+                                    {message.sender === 'ai' && message.text !== "Thinking..." && renderMemorySources(message)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
-              >
-                <div
-                  className={cn(
-                    "inline-block max-w-[80%] md:max-w-[70%] rounded-lg px-3 py-2 text-sm overflow-hidden break-words",
-                    message.sender === 'user'
-                      ? "bg-primary text-primary-foreground rounded-br-none"
-                      : "bg-background border border-border rounded-bl-none"
-                  )}
-                >
-                  {message.sender === 'user' ? (
-                    message.text
-                  ) : (
-                    // Use the FormattedMessage component for AI responses
-                    <FormattedMessage content={message.text} memories={message.memories} />
-                  )}
-                  {message.sender === 'ai' && renderMemorySources(message)}
+            </ScrollArea>
+            {/* Input Area */}
+            <div className="border-t border-border bg-background p-3 lg:p-4 w-full flex-shrink-0">
+                <div className="relative max-w-4xl mx-auto flex items-center space-x-2">
+                    <Input
+                        placeholder={`Ask anything${selectedDocumentId ? ' about the selected document' : ''}...`}
+                        className="flex-1 pr-10 h-10"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        disabled={isLoading}
+                    />
+                    <Button
+                        type="submit"
+                        size="icon"
+                        className="h-8 w-8 flex-shrink-0"
+                        onClick={handleSendMessage}
+                        disabled={!inputValue.trim() || isLoading}
+                        aria-label="Send message"
+                    >
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                    </Button>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-      
-      {/* Input Area */}
-      <div className="border-t border-border bg-background p-4 lg:p-6 w-full">
-        <div className="relative max-w-full">
-          <Input
-            placeholder="Type your message here..."
-            className="pr-12 h-10 w-full"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7"
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowRight className="h-4 w-4" />
-            )}
-            <span className="sr-only">Send</span>
-          </Button>
-        </div>
-      </div>
-    </main>
-  );
+            </div>
+        </main>
+    );
 }
