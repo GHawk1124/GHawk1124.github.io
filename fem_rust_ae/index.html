@@ -8,7 +8,8 @@ permalink: /fem_rust_ae/
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>FEM Simulation</title>
     <style>
         /* Fullscreen styles */
@@ -33,6 +34,9 @@ permalink: /fem_rust_ae/
             display: block;
             outline: none;
             touch-action: none;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         #loading {
@@ -104,16 +108,26 @@ permalink: /fem_rust_ae/
             try {
                 document.getElementById('loading').style.display = 'flex';
                 await init();
-                document.getElementById('loading').style.display = 'none';
+                // The loading div will be hidden by the Bevy application itself
+                // so we don't need to hide it here
             } catch (error) {
                 console.error('Failed to initialize WASM module:', error);
-                document.getElementById('loading').innerHTML = `
-                    <div class="error">
-                        <h2>Error Loading Simulation</h2>
-                        <p>${error.message}</p>
-                        <p>Please check the browser console for more details.</p>
-                    </div>
-                `;
+
+                // Check if this is the expected "exception for control flow" message
+                if (error.message && error.message.includes("Using exceptions for control flow")) {
+                    console.log("This is a normal part of Bevy's WebAssembly initialization, not an actual error");
+                    // Hide the loading screen as the app is actually running
+                    document.getElementById('loading').style.display = 'none';
+                } else {
+                    // This is a real error
+                    document.getElementById('loading').innerHTML = `
+                        <div class="error">
+                            <h2>Error Loading Simulation</h2>
+                            <p>${error.message}</p>
+                            <p>Please check the browser console for more details.</p>
+                        </div>
+                    `;
+                }
             }
         }
 
