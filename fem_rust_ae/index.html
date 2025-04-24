@@ -1,60 +1,23 @@
----
-layout: none
-permalink: /fem_rust_ae/
----
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
     <title>FEM Simulation</title>
     <style>
-        /* Fullscreen styles */
-        * {
+        body,
+        html {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #1a1a1a;
-            font-family: Arial, sans-serif;
         }
 
-        #bevy-canvas {
+        canvas {
+            display: block;
             width: 100%;
             height: 100%;
-            display: block;
-            outline: none;
-            touch-action: manipulation;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        /* Make sure the canvas doesn't capture pointer events that should go to the UI */
-        canvas {
-            touch-action: manipulation;
-        }
-
-        /* Style for egui elements to ensure they're clickable */
-        .egui-ctx {
-            z-index: 10 !important;
-            pointer-events: auto !important;
-        }
-
-        /* Ensure egui panels are clickable */
-        .egui-ctx div {
-            pointer-events: auto !important;
         }
 
         #loading {
@@ -63,145 +26,36 @@ permalink: /fem_rust_ae/
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #1a1a1a;
+            background: #333;
+            color: white;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            color: white;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-
-        .loading-text {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .error {
-            color: #ff5555;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .error h2 {
-            margin-bottom: 10px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Make sure the canvas is responsive */
-        @media (max-width: 768px) {
-            .loading-text {
-                font-size: 16px;
-            }
+            z-index: 100;
         }
     </style>
 </head>
 
 <body>
-    <div id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading FEM Simulation...</div>
-    </div>
-    <canvas id="bevy-canvas"></canvas>
+    <div id="loading">Loading FEM Simulation...</div>
     <script type="module">
-        // Use the full URL path to ensure Jekyll doesn't interfere with the path
-        import init from '{{ "/fem_rust_ae/fem_sim.js" | relative_url }}';
-
-        // Helper function to ensure proper event handling for egui
-        function setupEventHandling() {
-            // Get the canvas element
-            const canvas = document.getElementById('bevy-canvas');
-
-            // Make sure the canvas is focused when clicked
-            canvas.addEventListener('click', function () {
-                canvas.focus();
-            });
-
-            // Ensure proper pointer event handling
-            document.addEventListener('pointermove', function (e) {
-                // Make sure the event is propagated to all elements
-                e.stopPropagation = false;
-            }, { capture: true });
-
-            // Ensure proper touch event handling for mobile
-            document.addEventListener('touchstart', function (e) {
-                // Don't prevent default to allow UI interaction
-                e.preventDefault = false;
-            }, { passive: true });
-
-            // Create a MutationObserver to watch for any canvas elements added by Bevy/egui
-            const observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    if (mutation.addedNodes) {
-                        mutation.addedNodes.forEach(function (node) {
-                            // If a canvas is added, make sure it has proper touch handling
-                            if (node.nodeName === 'CANVAS') {
-                                node.style.touchAction = 'manipulation';
-                                console.log('Fixed touch-action for new canvas element');
-                            }
-                        });
-                    }
-                });
-            });
-
-            // Start observing the document body for changes
-            observer.observe(document.body, { childList: true, subtree: true });
-
-            console.log("Event handling setup complete");
-        }
+        import init from './fem_sim.js';
 
         async function run() {
             try {
-                document.getElementById('loading').style.display = 'flex';
-
-                // Initialize the WASM module
                 await init();
-
-                // Setup event handling after initialization
-                setupEventHandling();
-
-                // The loading div will be hidden by the Bevy application itself
-                // so we don't need to hide it here
+                document.getElementById('loading').style.display = 'none';
             } catch (error) {
-                console.error('Failed to initialize WASM module:', error);
-
-                // Check if this is the expected "exception for control flow" message
+                console.error('Error:', error);
+                // If it's the expected control flow exception, hide the loading screen
                 if (error.message && error.message.includes("Using exceptions for control flow")) {
-                    console.log("This is a normal part of Bevy's WebAssembly initialization, not an actual error");
-                    // Hide the loading screen as the app is actually running
                     document.getElementById('loading').style.display = 'none';
-
-                    // Setup event handling even after the "error"
-                    setupEventHandling();
                 } else {
-                    // This is a real error
-                    document.getElementById('loading').innerHTML = `
-                        <div class="error">
-                            <h2>Error Loading Simulation</h2>
-                            <p>${error.message}</p>
-                            <p>Please check the browser console for more details.</p>
-                        </div>
-                    `;
+                    document.getElementById('loading').textContent = 'Error loading simulation: ' + error.message;
                 }
             }
         }
 
-        // Start the application
         run();
     </script>
 </body>
