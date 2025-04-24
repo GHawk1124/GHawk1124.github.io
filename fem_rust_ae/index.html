@@ -1,5 +1,11 @@
+---
+layout: none
+permalink: /fem_rust_ae/
+---
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +18,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -82,6 +89,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="loading">
         <div class="spinner"></div>
@@ -89,8 +97,9 @@
     </div>
     <canvas id="bevy-canvas"></canvas>
     <script type="module">
-        import init from './fem_sim.js';
-        
+        // Use the full URL path to ensure Jekyll doesn't interfere with the path
+        import init from '{{ "/fem_rust_ae/fem_sim.js" | relative_url }}';
+
         async function run() {
             try {
                 document.getElementById('loading').style.display = 'flex';
@@ -102,12 +111,14 @@
                     <div class="error">
                         <h2>Error Loading Simulation</h2>
                         <p>${error.message}</p>
+                        <p>Please check the browser console for more details.</p>
                     </div>
                 `;
             }
         }
-        
+
         run();
     </script>
 </body>
+
 </html>
