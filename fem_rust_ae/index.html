@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEM Simulation</title>
+    <style>
+        /* Fullscreen styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+        }
+
+        #bevy-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+            touch-action: none;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #ff5555;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .error h2 {
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Make sure the canvas is responsive */
+        @media (max-width: 768px) {
+            .loading-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading FEM Simulation...</div>
+    </div>
+    <canvas id="bevy-canvas"></canvas>
+    <script type="module">
+        import init from './fem_sim.js';
+        
+        async function run() {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                await init();
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error('Failed to initialize WASM module:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="error">
+                        <h2>Error Loading Simulation</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        run();
+    </script>
+</body>
+</html>
