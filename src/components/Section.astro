@@ -1,0 +1,14 @@
+---
+const { className, title, ...rest } = Astro.props;
+---
+
+<section class:list={["flex flex-col gap-4 print:gap-0", className]} {...rest}>
+  {title && (
+    <h2 class="relative flex w-full items-baseline gap-3 pb-4 text-3xl ink-title-md font-serif-main font-bold print:gap-1 print:pb-0 print:text-xl">
+      {title}
+      <div class="section-rule flex-1"></div>
+    </h2>
+  )}
+  <slot />
+</section>
+

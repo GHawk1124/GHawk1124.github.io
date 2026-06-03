@@ -1,0 +1,443 @@
+---
+import CVRaw from "@cv";
+import type { CV as CVType } from "@/cv";
+const CV = CVRaw as CVType;
+
+// Generate a clean text representation of the CV to inject into the LLM system prompt
+const cvSummary = {
+  name: CV.basics.name,
+  label: CV.basics.label,
+  summary: CV.basics.summary,
+  education: CV.education.map(edu => ({
+    institution: edu.institution,
+    area: edu.area,
+    studyType: edu.studyType,
+    courses: edu.courses
+  })),
+  work: CV.work.map(job => ({
+    company: job.name,
+    position: job.position,
+    summary: job.summary,
+    responsibilities: job.responsibilities,
+    skills: Object.keys(job.skills || {})
+  })),
+  skills: CV.skills.map(sk => `${sk.name} (${sk.level})`),
+  projects: CV.projects.map(proj => ({
+    name: proj.name,
+    description: proj.description,
+    highlights: proj.highlights
+  }))
+};
+
+const cvContextString = JSON.stringify(cvSummary);
+---
+
+<div 
+  id="ai-assistant-drawer" 
+  class="pointer-events-auto fixed top-[75px] right-6 w-[345px] md:w-[390px] h-[520px] max-h-[68vh] z-40 transition-all duration-300 transform translate-x-[450px] opacity-0 flex flex-col bg-skin-fill/90 backdrop-blur-md border border-skin-muted/30 shadow-2xl rounded-2xl font-serif overflow-hidden select-text"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-4 py-3 border-b border-skin-muted/20 bg-skin-fill/95 select-none">
+    <div class="flex items-center gap-2">
+      <span id="ai-drawer-status-dot" class="w-2.5 h-2.5 rounded-full bg-stone-400"></span>
+      <span class="font-sc text-[11px] tracking-wider uppercase font-bold text-skin-base">Gemma 2B Local AI</span>
+    </div>
+    <button id="ai-drawer-close" class="text-skin-muted hover:text-skin-base text-lg font-bold cursor-pointer p-1 transition-colors leading-none" aria-label="Close Assistant">
+      &times;
+    </button>
+  </div>
+
+  <!-- Content Areas -->
+  <div id="ai-content-container" class="flex-1 flex flex-col p-4 overflow-y-auto text-sm">
+    <!-- State 1: Check/Load Screen -->
+    <div id="ai-state-uninitialized" class="flex-1 flex flex-col justify-center items-center text-center space-y-4">
+      <div class="p-3 bg-skin-button-muted/40 rounded-full border border-skin-muted/20 select-none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" class="fill-skin-base"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+      </div>
+      <div>
+        <h4 class="font-bold text-base text-skin-base">Local WebGPU AI Chat</h4>
+        <p class="text-xs text-skin-muted mt-1 px-4 leading-relaxed">
+          Chat with an AI model running <strong>100% locally</strong> in your browser via WebGPU. No data leaves your machine.
+        </p>
+      </div>
+      
+      <div class="w-full border border-dashed border-skin-muted/30 rounded-xl p-3 bg-skin-fill/40 text-left text-xs text-skin-muted space-y-1.5 leading-relaxed">
+        <div class="flex items-center gap-1.5 font-bold text-skin-base select-none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" class="fill-skin-base"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Requirements:
+        </div>
+        <div>• Chrome, MS Edge, or Brave (v113+)</div>
+        <div>• WebGPU-compatible GPU (e.g. M1/M2, RTX)</div>
+        <div>• Download size: <strong>~1.6 GB</strong> (cached locally)</div>
+      </div>
+
+      <button id="ai-init-btn" class="w-full bg-skin-button-accent text-skin-inverted hover:bg-skin-button-accent-hover font-bold text-xs tracking-wider uppercase py-3 rounded-xl shadow transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none">
+        Initialize Gemma AI
+      </button>
+    </div>
+
+    <!-- State 2: WebGPU Unsupported Fallback -->
+    <div id="ai-state-unsupported" class="flex-1 hidden flex flex-col justify-center items-center text-center space-y-4">
+      <div class="p-3 bg-red-500/10 rounded-full border border-red-500/20 text-red-500 select-none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" class="fill-current"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      </div>
+      <div>
+        <h4 class="font-bold text-base text-red-500">WebGPU Not Supported</h4>
+        <p class="text-xs text-skin-muted mt-1 px-4 leading-relaxed">
+          Your browser or hardware does not support WebGPU, which is required to run local browser models. 
+        </p>
+        <p class="text-xs text-skin-muted mt-2 px-4 leading-relaxed">
+          Please run Chrome, Edge, or Brave with WebGPU enabled.
+        </p>
+      </div>
+    </div>
+
+    <!-- State 3: Loading / Progress Screen -->
+    <div id="ai-state-loading" class="flex-1 hidden flex flex-col justify-center space-y-6 select-none">
+      <div class="text-center space-y-2">
+        <div class="inline-block animate-spin rounded-full h-7 w-7 border-2 border-skin-muted border-t-skin-button-accent"></div>
+        <h4 class="font-bold text-sm text-skin-base">Loading Local AI...</h4>
+        <p class="text-xs text-skin-muted">Downloading weights & compiling shaders</p>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs text-skin-base font-mono">
+          <span id="ai-loading-step">Connecting...</span>
+          <span id="ai-loading-percent">0%</span>
+        </div>
+        <div class="w-full bg-skin-button-muted/50 rounded-full h-1.5 overflow-hidden border border-skin-muted/20">
+          <div id="ai-loading-progress-bar" class="bg-skin-button-accent h-full w-0 transition-all duration-300"></div>
+        </div>
+        <p id="ai-loading-detail" class="text-[10px] font-mono text-skin-muted text-center leading-normal break-all"></p>
+      </div>
+    </div>
+
+    <!-- State 4: Chat Log Interface -->
+    <div id="ai-state-chat" class="flex-1 hidden flex flex-col space-y-4 h-full overflow-hidden">
+      <!-- Scrollable Message list -->
+      <div id="ai-chat-messages" class="flex-1 space-y-4 overflow-y-auto pr-1 flex flex-col scrollbar-thin">
+        <!-- Message Bubbles will be dynamically added here -->
+      </div>
+
+      <!-- Quick prompts wrapper -->
+      <div id="ai-chat-quick-prompts" class="flex flex-col gap-1.5 pt-2 border-t border-skin-muted/20 select-none">
+        <span class="text-[10px] font-sc tracking-wider uppercase font-bold text-skin-muted">Suggested Topics:</span>
+        <div class="grid grid-cols-1 gap-1">
+          <button class="quick-prompt-chip text-left text-xs px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
+            What is Garrett's experience?
+          </button>
+          <button class="quick-prompt-chip text-left text-xs px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
+            Tell me about his Rust 6-DOF simulator
+          </button>
+          <button class="quick-prompt-chip text-left text-xs px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
+            What are his engineering skills?
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Input Footer -->
+  <div id="ai-chat-input-footer" class="p-3 border-t border-skin-muted/20 bg-skin-fill/95 hidden select-none">
+    <form id="ai-chat-form" class="flex gap-2">
+      <input 
+        type="text" 
+        id="ai-chat-input" 
+        placeholder="Ask about Garrett..." 
+        autocomplete="off"
+        class="flex-1 bg-skin-button-muted/30 border border-skin-muted/40 rounded-xl px-3 py-2 text-sm text-skin-base placeholder-skin-muted/60 focus:outline-none focus:border-skin-button-accent/70 font-serif"
+      />
+      <button 
+        type="submit" 
+        id="ai-chat-submit"
+        class="bg-skin-button-accent hover:bg-skin-button-accent-hover text-skin-inverted rounded-xl p-2 px-3 transition-colors duration-150 flex items-center justify-center cursor-pointer"
+        aria-label="Send Message"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" class="fill-current"><path d="M1.946 9.315c-.522-.174-.527-.455.01-.634L21.075 2.25c.537-.18.784.067.604.604L15.32 21.946c-.18.537-.46.533-.634.01l-3.568-10.702L1.946 9.315z"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Floating Action Button for Mobile/Tablet -->
+<button id="ai-floating-toggle" class="fixed bottom-6 right-6 z-40 bg-skin-fill/90 backdrop-blur-md border border-skin-muted/30 shadow-xl px-4 py-2.5 rounded-full hover:bg-skin-button-muted/40 font-sc text-[10px] tracking-wider uppercase select-none transition-all flex items-center gap-1.5 cursor-pointer lg:hidden">
+  <span class="w-1.5 h-1.5 rounded-full bg-stone-400" id="ai-floating-status-dot"></span>
+  AI Assistant
+</button>
+
+<style>
+  #ai-assistant-drawer {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  }
+  
+  #ai-chat-messages::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  #ai-chat-messages::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--color-text-muted), 0.3);
+    border-radius: 2px;
+  }
+</style>
+
+<script define:vars={{ cvContextString }}>
+  // Elements
+  const drawer = document.getElementById('ai-assistant-drawer');
+  const closeBtn = document.getElementById('ai-drawer-close');
+  const openBtn = document.getElementById('ai-chat-btn');
+  const floatBtn = document.getElementById('ai-floating-toggle');
+  const initBtn = document.getElementById('ai-init-btn');
+
+  const stateUninitialized = document.getElementById('ai-state-uninitialized');
+  const stateUnsupported = document.getElementById('ai-state-unsupported');
+  const stateLoading = document.getElementById('ai-state-loading');
+  const stateChat = document.getElementById('ai-state-chat');
+  const inputFooter = document.getElementById('ai-chat-input-footer');
+
+  const loadingStep = document.getElementById('ai-loading-step');
+  const loadingPercent = document.getElementById('ai-loading-percent');
+  const loadingProgressBar = document.getElementById('ai-loading-progress-bar');
+  const loadingDetail = document.getElementById('ai-loading-detail');
+
+  const chatMessages = document.getElementById('ai-chat-messages');
+  const chatForm = document.getElementById('ai-chat-form');
+  const chatInput = document.getElementById('ai-chat-input');
+  const chatSubmit = document.getElementById('ai-chat-submit');
+
+  const statusDotNav = document.getElementById('ai-status-dot');
+  const statusDotDrawer = document.getElementById('ai-drawer-status-dot');
+  const statusDotFloat = document.getElementById('ai-floating-status-dot');
+
+  let engine = null;
+  const modelId = "gemma-2-2b-it-q4f16_1-MLC";
+  let conversationHistory = [];
+
+  // Theme support & responsive dot status colors
+  function setStatus(state) {
+    const dots = [statusDotNav, statusDotDrawer, statusDotFloat];
+    dots.forEach(dot => {
+      if (!dot) return;
+      dot.className = "w-1.5 h-1.5 rounded-full transition-all duration-200";
+      if (dot === statusDotDrawer) {
+        dot.className = "w-2.5 h-2.5 rounded-full transition-all duration-200";
+      }
+      
+      if (state === 'unsupported') {
+        dot.classList.add('bg-red-500');
+      } else if (state === 'loading') {
+        dot.classList.add('bg-amber-500', 'animate-pulse');
+      } else if (state === 'ready') {
+        dot.classList.add('bg-emerald-500', 'animate-pulse');
+      } else {
+        dot.classList.add('bg-stone-400');
+      }
+    });
+  }
+
+  // Check WebGPU Support
+  const supportsWebGPU = !!(navigator.gpu);
+  if (!supportsWebGPU) {
+    setStatus('unsupported');
+    if (stateUninitialized) stateUninitialized.classList.add('hidden');
+    if (stateUnsupported) stateUnsupported.classList.remove('hidden');
+  } else {
+    setStatus('idle');
+  }
+
+  // Default to Open on Desktop (>= 1024px), Closed on Mobile
+  const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+  if (isDesktop) {
+    drawer.classList.add('open');
+    drawer.classList.remove('translate-x-[450px]', 'opacity-0');
+    drawer.classList.add('translate-x-0', 'opacity-100');
+    if (openBtn) {
+      openBtn.classList.add('bg-skin-button-accent', 'text-skin-inverted');
+      openBtn.classList.remove('text-skin-muted');
+    }
+  }
+
+  // Toggle Drawer Slide Out
+  function toggleDrawer() {
+    const isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+      drawer.classList.remove('open');
+      drawer.classList.add('translate-x-[450px]', 'opacity-0');
+      drawer.classList.remove('translate-x-0', 'opacity-100');
+      if (openBtn) {
+        openBtn.classList.remove('bg-skin-button-accent', 'text-skin-inverted');
+        openBtn.classList.add('text-skin-muted');
+      }
+    } else {
+      drawer.classList.add('open');
+      drawer.classList.remove('translate-x-[450px]', 'opacity-0');
+      drawer.classList.add('translate-x-0', 'opacity-100');
+      if (openBtn) {
+        openBtn.classList.add('bg-skin-button-accent', 'text-skin-inverted');
+        openBtn.classList.remove('text-skin-muted');
+      }
+      // Autofocus chat input if loaded
+      if (engine && chatInput) {
+        setTimeout(() => chatInput.focus(), 150);
+      }
+    }
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', toggleDrawer);
+  if (openBtn) openBtn.addEventListener('click', toggleDrawer);
+  if (floatBtn) floatBtn.addEventListener('click', toggleDrawer);
+
+  // Dynamic initialization
+  async function initializeAI() {
+    if (!supportsWebGPU) return;
+    
+    try {
+      stateUninitialized.classList.add('hidden');
+      stateLoading.classList.remove('hidden');
+      setStatus('loading');
+
+      // Import the WebLLM library dynamically
+      const webllm = await import("https://esm.run/@mlc-ai/web-llm");
+      
+      engine = await webllm.CreateMLCEngine(modelId, {
+        initProgressCallback: (report) => {
+          const pct = Math.round(report.progress * 100);
+          loadingPercent.textContent = `${pct}%`;
+          loadingProgressBar.style.width = `${pct}%`;
+          
+          if (report.text) {
+            loadingStep.textContent = report.text.split("...")[0] + "...";
+            loadingDetail.textContent = report.text;
+          }
+        }
+      });
+
+      // Done Loading
+      stateLoading.classList.add('hidden');
+      stateChat.classList.remove('hidden');
+      inputFooter.classList.remove('hidden');
+      setStatus('ready');
+
+      // Welcoming Message
+      addChatMessage('assistant', `Hi! I am Garrett's local AI assistant, powered by the Gemma 2B model running entirely on your GPU. Ask me anything about his flight mechanics, simulation frameworks, work at Lockheed Martin, or other technical projects!`);
+      if (chatInput) chatInput.focus();
+
+    } catch (err) {
+      console.error("WebLLM initialization error:", err);
+      loadingStep.textContent = "Initialization Failed";
+      loadingDetail.textContent = err.message || "Out of memory or WebGPU context error. Make sure your browser's WebGPU flag is enabled.";
+      setStatus('unsupported');
+    }
+  }
+
+  if (initBtn) initBtn.addEventListener('click', initializeAI);
+
+  // Messaging Helpers
+  function addChatMessage(role, content) {
+    const bubble = document.createElement('div');
+    bubble.className = `flex flex-col space-y-1 max-w-[85%] ${role === 'user' ? 'self-end items-end' : 'self-start items-start'}`;
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = `px-3 py-2 rounded-xl text-xs leading-relaxed ${
+      role === 'user' 
+        ? 'bg-skin-button-accent text-skin-inverted rounded-tr-none' 
+        : 'bg-skin-button-muted/40 border border-skin-muted/20 text-skin-base rounded-tl-none'
+    }`;
+    textDiv.textContent = content;
+    
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'text-[9px] text-skin-muted font-mono px-1 uppercase tracking-wider select-none';
+    labelSpan.textContent = role === 'user' ? 'You' : 'Gemma AI';
+
+    bubble.appendChild(textDiv);
+    bubble.appendChild(labelSpan);
+
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return textDiv;
+  }
+
+  // Handle send messages
+  async function handleSendMessage(messageText) {
+    if (!messageText.trim() || !engine) return;
+
+    // 1. Add User query
+    addChatMessage('user', messageText);
+    
+    // Disable inputs
+    chatInput.disabled = true;
+    chatSubmit.disabled = true;
+    chatInput.placeholder = "Gemma is responding...";
+    
+    conversationHistory.push({ role: "user", content: messageText });
+
+    // 2. Add Empty assistant loader bubble
+    const responseTextDiv = addChatMessage('assistant', "● ● ●");
+    responseTextDiv.classList.add('animate-pulse');
+
+    try {
+      const systemPrompt = `You are a helpful, intelligent AI assistant for Garrett Comes's portfolio website. Garrett is an Aerospace Engineering & Software Development student/graduate from Georgia Tech, specializing in flight mechanics, astrodynamics, and high-performance simulation software (Rust, C++, Python).
+
+Here is Garrett's resume information to answer questions:
+${cvContextString}
+
+Instructions:
+- Respond warmly and professionally. Keep answers concise, direct, and conversational (ideally under 3 sentences).
+- Refer to Garrett in the third person or represent yourself as his personal portfolio AI assistant.
+- Do not make up facts; if you do not know something, politely state that you can only answer questions about Garrett's academic and professional background.`;
+
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...conversationHistory
+      ];
+
+      const completion = await engine.chat.completions.create({
+        messages: messages,
+        stream: true
+      });
+
+      responseTextDiv.classList.remove('animate-pulse');
+      responseTextDiv.textContent = "";
+
+      let replyText = "";
+      for await (const chunk of completion) {
+        const text = chunk.choices[0]?.delta?.content || "";
+        replyText += text;
+        responseTextDiv.textContent = replyText;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      conversationHistory.push({ role: "assistant", content: replyText });
+
+    } catch (err) {
+      console.error("Inference Error:", err);
+      responseTextDiv.classList.remove('animate-pulse');
+      responseTextDiv.textContent = "Error: Failed to stream response. This can happen if WebGPU runs out of memory (VRAM). Try refreshing the page.";
+      responseTextDiv.classList.add('text-red-500');
+    } finally {
+      chatInput.disabled = false;
+      chatSubmit.disabled = false;
+      chatInput.placeholder = "Ask about Garrett...";
+      chatInput.value = "";
+      chatInput.focus();
+    }
+  }
+
+  // Form submission
+  if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (text) handleSendMessage(text);
+    });
+  }
+
+  // Quick prompt triggers
+  document.querySelectorAll('.quick-prompt-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const text = chip.textContent.trim();
+      const quickPromptsDiv = document.getElementById('ai-chat-quick-prompts');
+      if (quickPromptsDiv) quickPromptsDiv.classList.add('hidden');
+      handleSendMessage(text);
+    });
+  });
+</script>

@@ -1,0 +1,138 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+import katex from "katex";
+import "katex/dist/katex.min.css";
+import CVRaw from "@cv";
+import type { CV as CVType } from "@/cv";
+import { projectDetails } from "@/data/projectDetails";
+
+export function getStaticPaths() {
+  const CV = CVRaw as CVType;
+  return CV.projects.map((project) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      detail: projectDetails[project.slug],
+    },
+  }));
+}
+
+const { project, detail } = Astro.props;
+const title = `${project.name} - Garrett Comes`;
+const renderMath = (equation: string) =>
+  katex.renderToString(equation, {
+    displayMode: true,
+    throwOnError: false,
+    strict: "ignore",
+  });
+---
+
+<Layout title={title}>
+  <main class="relative mx-auto min-h-screen max-w-5xl px-6 py-10 md:px-12 md:py-16">
+    <a
+      href="/"
+      class="print:hidden inline-flex items-center gap-2 font-sc text-[11px] tracking-[0.22em] uppercase text-skin-muted hover:text-skin-base transition-colors"
+    >
+      <Icon name="ri:arrow-left-line" width={14} height={14} />
+      Portfolio
+    </a>
+
+    <section class="mt-10 border-b border-skin-muted/25 pb-10">
+      <p class="font-sc text-[11px] tracking-[0.28em] uppercase text-skin-muted/75">
+        {detail.eyebrow}
+      </p>
+      <div class="mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-6xl font-bold ink-title-hero leading-none">
+            {detail.title}
+          </h1>
+          <p class="mt-5 text-[17px] md:text-[19px] leading-relaxed text-skin-base/85 italic font-serif-main">
+            {detail.deck}
+          </p>
+        </div>
+
+        <div class="flex shrink-0 flex-wrap gap-3">
+          {project.github && (
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-muted/60 px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base"
+            >
+              <Icon name="mdi:github" width={14} height={14} />
+              Repository
+            </a>
+          )}
+          {project.demo && (
+            <a
+              href={project.demo}
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-accent px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-inverted hover:bg-skin-button-accent-hover"
+            >
+              <Icon name="ri:play-line" width={14} height={14} />
+              Demo
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <section class="grid gap-10 py-10 md:grid-cols-[minmax(0,1fr)_16rem]">
+      <div class="space-y-10">
+        {detail.sections.map((section) => (
+          <article class="border-b border-skin-muted/20 pb-8 last:border-b-0">
+            <h2 class="text-2xl font-bold ink-title-md">{section.title}</h2>
+            <div class="mt-4 space-y-4">
+              {section.body.map((paragraph) => (
+                <p class="text-[16.5px] leading-relaxed text-skin-base/85 font-serif-main">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            {section.bullets && (
+              <ul class="mt-5 space-y-2 pl-5 text-[15px] text-skin-muted list-disc marker:text-skin-hue">
+                {section.bullets.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            )}
+          </article>
+        ))}
+      </div>
+
+      <aside class="space-y-8">
+        <section>
+          <h2 class="font-sc text-[11px] tracking-[0.24em] uppercase text-skin-muted/80">
+            Stack
+          </h2>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {detail.stack.map((item) => (
+              <li class="rounded-sm border border-skin-muted/25 bg-skin-button-muted/55 px-2 py-1 font-sc text-[11px] tracking-wider text-skin-muted">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {detail.equations && (
+          <section>
+            <h2 class="font-sc text-[11px] tracking-[0.24em] uppercase text-skin-muted/80">
+              Math Notes
+            </h2>
+            <div class="mt-4 space-y-4">
+              {detail.equations.map((eq) => (
+                <article class="border-l border-skin-muted/30 pl-4">
+                  <h3 class="font-bold text-[15px] text-skin-base">{eq.label}</h3>
+                  <div class="math-panel mt-2 overflow-x-auto rounded-sm border border-skin-muted/20 bg-skin-button-muted/45 px-3 py-3 text-skin-base" set:html={renderMath(eq.equation)} />
+                  <p class="mt-2 text-[13.5px] leading-relaxed text-skin-muted">
+                    {eq.note}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </aside>
+    </section>
+  </main>
+</Layout>

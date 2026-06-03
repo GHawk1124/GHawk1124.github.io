@@ -1,0 +1,147 @@
+---
+import Section from "../Section.astro";
+import { Icon } from "astro-icon/components";
+
+import CVRaw from "@cv";
+import type { CV as CVType } from "@/cv";
+const CV = CVRaw as CVType;
+const projects = CV.projects;
+
+const { className, ...rest } = Astro.props;
+---
+
+<Section className={className} title="Projects" {...rest}>
+  <div class="grid grid-cols-1 gap-6 print:flex print:flex-col">
+    {
+      projects.map(
+        ({ url, description, highlights, name, slug, isActive, github, demo }, index: number) => {
+          const indexStr = String(index + 1).padStart(2, '0');
+          const isExtra = index >= 3;
+          const projectHref = slug ? `/projects/${slug}/` : url;
+          return (
+            <div
+              role="contentinfo"
+              class={`project-card-custom relative flex flex-col overflow-hidden pt-2.5 pb-3 px-5 hover:-translate-y-1 duration-200 rounded-lg ${isExtra ? 'project-extra-card hidden' : ''}`}
+            >
+              {projectHref && (
+                <a
+                  href={projectHref}
+                  aria-label={`Open ${name} project overview`}
+                  class="absolute inset-0 z-10 rounded-lg"
+                />
+              )}
+
+              <div class="relative z-20 pointer-events-none flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-serif-main italic text-xs text-skin-muted/65">{indexStr}</span>
+                  {index < 3 && (
+                    <Icon name="ri:star-fill" class="w-3 h-3 text-skin-hue/85" title="Featured Project" />
+                  )}
+                  {isActive && (
+                    <span class="font-sc text-[9px] tracking-[0.15em] text-skin-inverted bg-skin-base/90 px-2 py-0.5 rounded-sm uppercase">
+                      Active
+                    </span>
+                  )}
+                </div>
+
+                {github && (
+                  <a
+                    href={github}
+                    title="View repository on GitHub"
+                    target="_blank"
+                    rel="noopener"
+                    class="relative z-30 pointer-events-auto text-skin-muted/70 hover:text-skin-base hover:scale-110 transition-transform"
+                  >
+                    <Icon name="mdi:github" width={20} height={20} />
+                  </a>
+                )}
+              </div>
+
+              <h3 class="relative z-20 pointer-events-none text-[19px] font-bold ink-title-sm mb-1 leading-tight">
+                {name}
+              </h3>
+
+              <p class="relative z-20 pointer-events-none text-[13.5px] leading-relaxed text-skin-base/80 italic font-serif-main flex-1">
+                {description}
+              </p>
+
+              <!-- Project Highlights List -->
+              {highlights && highlights.length > 0 && (
+                <ul class="relative z-20 pointer-events-none mt-3 text-[13.5px] text-skin-muted space-y-1.5 pl-4 list-disc marker:text-skin-hue/60 font-sans">
+                  {highlights.map((highlight: string) => (
+                    <li>{highlight}</li>
+                  ))}
+                </ul>
+              )}
+
+              {(projectHref || demo) && (
+                <div class="relative z-30 pointer-events-auto flex flex-wrap gap-3 mt-5">
+                  {projectHref && (
+                    <a
+                      href={projectHref}
+                      title={`Read ${name} project overview`}
+                      class="card-link font-sc text-[10px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base border-b border-skin-muted/30 pb-0.5 self-start transition-colors"
+                    >
+                      Overview &rarr;
+                    </a>
+                  )}
+                  {demo && (
+                    <a
+                      href={demo}
+                      title={`Open ${name} live demo`}
+                      class="card-link font-sc text-[10px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base border-b border-skin-muted/30 pb-0.5 self-start transition-colors"
+                    >
+                      Demo &rarr;
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        },
+      )
+    }
+  </div>
+
+  {projects.length > 3 && (
+    <button
+      id="showMoreProjects"
+      class="print:hidden group/more w-fit cursor-pointer items-center justify-center gap-1.5 text-[11px] font-sc tracking-widest uppercase text-skin-muted hover:text-skin-base transition-colors flex mt-4 self-center"
+    >
+      <span class="expand-projects-text">Show more projects</span>
+      <Icon name="ri:arrow-down-s-line" class="w-3.5 h-3.5 group-hover/more:translate-y-0.5 duration-200 ease-out transition-transform" width={14} height={14}></Icon>
+    </button>
+  )}
+</Section>
+
+<script>
+  const showMoreBtn = document.getElementById('showMoreProjects');
+  const extraCards = document.querySelectorAll('.project-extra-card');
+
+  if (showMoreBtn && extraCards.length > 0) {
+    showMoreBtn.addEventListener('click', () => {
+      const isHidden = extraCards[0].classList.contains('hidden');
+      
+      extraCards.forEach(card => {
+        if (isHidden) {
+          card.classList.remove('hidden');
+          card.classList.add('animate-fade-in');
+        } else {
+          card.classList.add('hidden');
+          card.classList.remove('animate-fade-in');
+        }
+      });
+
+      const textSpan = showMoreBtn.querySelector('.expand-projects-text')!;
+      const icon = showMoreBtn.querySelector('svg')!;
+
+      if (isHidden) {
+        textSpan.innerHTML = 'Show fewer projects';
+        icon.classList.add('rotate-180');
+      } else {
+        textSpan.innerHTML = 'Show more projects';
+        icon.classList.remove('rotate-180');
+      }
+    });
+  }
+</script>

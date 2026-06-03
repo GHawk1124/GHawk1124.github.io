@@ -1,0 +1,22 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@cv": [
+        "./cv.json"
+      ],
+      "@/*": [
+        "src/*"
+      ]
+    }
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+    "public",
+    "test_canvas.js",
+    "GHawk1124.github.io",
+    "projects"
+  ]
+}

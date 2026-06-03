@@ -1,0 +1,232 @@
+---
+import ParchmentBackground from "@/components/ParchmentBackground.astro";
+import "@fancyapps/ui/dist/fancybox/fancybox.css";
+import '../globals.css';
+import CV from "@cv";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const { image, summary, url, theme } = CV.basics;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{title}</title>
+    <meta name="description" content={summary} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="/avatar.png" />
+    <link rel="preload" as="image" href={image} />
+    <meta property="og:url" content={url} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={summary} />
+    <meta property="og:image" content="" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="twitter:domain" content={url.split("//")[1] ?? ""} />
+    <meta property="twitter:url" content={url} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={summary} />
+    <meta name="twitter:image" content="" />
+    {CV?.analyticsCode && <script is:inline src={CV.analyticsCode} />}
+
+    <!-- Typography setup from Claude Designs Portfolio -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script is:inline>
+      (() => {
+        try {
+          const storedTheme = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch {
+          // Local storage can be unavailable in hardened browser contexts.
+        }
+      })();
+    </script>
+  </head>
+  <body data-theme={theme} class="relative bg-skin-fill font-serif-main text-skin-base min-h-screen">
+    <!-- SVG ink displacement filters — applied to headings via CSS filter -->
+    <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+      <defs>
+        <!-- Hero / large display text: most noticeable rough edge -->
+        <filter id="inkHero" x="-4%" y="-10%" width="108%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.032 0.016" numOctaves="4" seed="7" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <!-- Section titles: medium roughness -->
+        <filter id="inkMd" x="-3%" y="-8%" width="106%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.044 0.022" numOctaves="3" seed="7" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <!-- Card titles / roles: lightest roughness -->
+        <filter id="inkSm" x="-3%" y="-6%" width="106%" height="112%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.055 0.028" numOctaves="3" seed="7" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="1.1" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+    </svg>
+
+    <ParchmentBackground />
+    <slot />
+
+    <!-- Global Cursor Light Overlays -->
+    <div id="cursor-light" class="pointer-events-none fixed inset-0 z-30 transition-opacity duration-500 opacity-0"></div>
+    <div id="cursor-glow" class="pointer-events-none fixed inset-0 z-20 transition-opacity duration-500 opacity-0"></div>
+
+    <script>
+      // Global and Local Cursor Tracking
+      const light = document.getElementById('cursor-light');
+      const glow = document.getElementById('cursor-glow');
+      
+      window.addEventListener('mousemove', (e) => {
+        document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+        document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        
+        if (light && light.style.opacity !== '1') {
+          light.style.opacity = '1';
+        }
+        if (glow && glow.style.opacity !== '1') {
+          glow.style.opacity = '1';
+        }
+      });
+
+      // Update card local positions for border highlight reveal
+      function setupCardTracking() {
+        document.querySelectorAll('.project-card-custom').forEach((card) => {
+          // Prevent multiple bindings
+          if ((card as any).__hasTracking) return;
+          (card as any).__hasTracking = true;
+
+          card.addEventListener('mousemove', (e) => {
+            const htmlCard = card as HTMLElement;
+            const rect = htmlCard.getBoundingClientRect();
+            const x = (e as MouseEvent).clientX - rect.left;
+            const y = (e as MouseEvent).clientY - rect.top;
+            htmlCard.style.setProperty('--mouse-x-local', `${x}px`);
+            htmlCard.style.setProperty('--mouse-y-local', `${y}px`);
+          });
+          
+          card.addEventListener('mouseleave', () => {
+            const htmlCard = card as HTMLElement;
+            htmlCard.style.setProperty('--mouse-x-local', `-1000px`);
+            htmlCard.style.setProperty('--mouse-y-local', `-1000px`);
+          });
+        });
+      }
+
+      setupCardTracking();
+
+      // Re-run tracking setup if DOM updates (collapsible projects)
+      const observer = new MutationObserver(() => {
+        setupCardTracking();
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+
+    <style is:global>
+      /* Cursor follow flashlight styles - Shadow/Multiply in Light Mode, Glow/Dodge in Dark Mode */
+      #cursor-light {
+        background: radial-gradient(60px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(0, 0, 0, 0.12), transparent 80%);
+        mix-blend-mode: multiply;
+      }
+      #cursor-glow {
+        background: radial-gradient(30px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(0, 0, 0, 0.08), transparent 80%);
+        mix-blend-mode: multiply;
+      }
+
+      .dark #cursor-light {
+        background: radial-gradient(60px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(188, 160, 128, 0.15), transparent 80%);
+        mix-blend-mode: color-dodge;
+      }
+      .dark #cursor-glow {
+        background: radial-gradient(30px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255, 255, 255, 0.18), transparent 80%);
+        mix-blend-mode: overlay;
+      }
+
+      body,
+      figure {
+        margin: 0;
+        padding: 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: rgb(var(--color-text-base));
+        margin: 0;
+      }
+
+      p {
+        color: rgb(var(--color-text-muted));
+        line-height: 1.6;
+        font-family: Georgia, 'Times New Roman', serif;
+        text-wrap: pretty;
+      }
+
+      .print {
+        display: none !important;
+      }
+
+      .dev * {
+        @apply border border-red-500/50 bg-red-500/5;
+      }
+      
+      #hotkeypad [data-backdrop] {
+        @apply !bg-stone-900 !opacity-80;
+      }
+
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(var(--color-text-muted), 0.3);
+        border-radius: 2px;
+      }
+
+      @media print {
+        .print {
+          display: block !important;
+        }
+
+        astro-dev-toolbar {
+          display: none !important;
+        }
+
+        article {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </body>
+</html>

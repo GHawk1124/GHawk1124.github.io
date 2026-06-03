@@ -1,0 +1,13 @@
+---
+import Section from "../Section.astro";
+import CVRaw from "@cv";
+import type { CV as CVType } from "@/cv";
+const CV = CVRaw as CVType;
+const { summary } = CV.basics;
+---
+
+<Section title="About">
+  <p class="text-[16px] leading-loose text-skin-base/90 italic font-serif-main">
+    {summary}
+  </p>
+</Section>

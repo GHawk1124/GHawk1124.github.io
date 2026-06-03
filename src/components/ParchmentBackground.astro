@@ -1,0 +1,583 @@
+---
+// WebGL Parchment Background Shader component (Static)
+---
+
+<canvas id="bg" class="fixed inset-0 h-screen w-screen -z-10 block pointer-events-none"></canvas>
+
+<script>
+(function () {
+  const canvas = document.getElementById('bg') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+  if (!gl) return;
+  gl.getExtension('OES_standard_derivatives');
+
+  const glContext = gl;
+
+  const VS = `
+    attribute vec2 a_pos;
+    void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+  `;
+
+  const FS = `
+    #extension GL_OES_standard_derivatives : enable
+    precision highp float;
+    uniform vec2  u_res;
+    uniform float u_time;
+    uniform vec3  u_C_paper;
+    uniform vec3  u_C_aged;
+    uniform vec3  u_C_fiber;
+    uniform vec3  u_C_dark;
+    uniform vec3  u_C_ink;
+
+    float distToSegment(vec2 p, vec2 a, vec2 b) {
+      vec2 pa = p - a;
+      vec2 ba = b - a;
+      float h = clamp(dot(pa, ba) / (dot(ba, ba) + 0.00001), 0.0, 1.0);
+      return length(pa - ba * h);
+    }
+
+    vec3 rotateX(vec3 p, float a) {
+      float c = cos(a), s = sin(a);
+      return vec3(p.x, c * p.y - s * p.z, s * p.y + c * p.z);
+    }
+    vec3 rotateY(vec3 p, float a) {
+      float c = cos(a), s = sin(a);
+      return vec3(c * p.x + s * p.z, p.y, -s * p.x + c * p.z);
+    }
+    vec3 rotateZ(vec3 p, float a) {
+      float c = cos(a), s = sin(a);
+      return vec3(c * p.x - s * p.y, s * p.x + c * p.y, p.z);
+    }
+
+    vec3 project(vec3 p, float cam_y) {
+      float tiltZ = 0.41; // 23.5 degrees Earth axial tilt
+      float tiltX = 0.20; // Slight pitch to see the north pole
+      p = rotateY(p, cam_y);
+      p = rotateX(p, tiltX);
+      p = rotateZ(p, -tiltZ);
+      return p;
+    }
+
+    vec3 unproject(vec3 p, float cam_y) {
+      float tiltZ = 0.41;
+      float tiltX = 0.20;
+      p = rotateZ(p, tiltZ);
+      p = rotateX(p, -tiltX);
+      p = rotateY(p, -cam_y);
+      return p;
+    }
+
+    vec3 getOrbitLine(vec2 st, vec3 e1, vec3 e2, float a, float b) {
+      float det = e1.x * e2.y - e2.x * e1.y;
+      if (abs(det) < 0.0001) {
+        return vec3(1000.0, 0.0, -100.0);
+      }
+      
+      float x_prime = (st.x * e2.y - st.y * e2.x) / det;
+      float y_prime = (st.y * e1.x - st.x * e1.y) / det;
+      
+      float z_out = x_prime * e1.z + y_prime * e2.z;
+      float theta_out = atan(y_prime, x_prime);
+      
+      float val = (x_prime * x_prime) / (a * a) + (y_prime * y_prime) / (b * b);
+      float orbit_dist = abs(sqrt(val) - 1.0);
+      
+      float scale_factor = length(vec2(x_prime, y_prime)) / (length(e1.xy * x_prime + e2.xy * y_prime) + 0.001);
+      float d_screen = orbit_dist * scale_factor;
+      
+      return vec3(d_screen, theta_out, z_out);
+    }
+
+    float drawOrbitLayer(vec2 st, float R_s, vec3 e1, vec3 e2, float a, float b, float is_dashed_occluded) {
+      vec3 orbit_res = getOrbitLine(st, e1, e2, a, b);
+      float d_screen = orbit_res.x;
+      float theta_p  = orbit_res.y;
+      float z_p      = orbit_res.z;
+      
+      bool occluded = false;
+      if (length(st) < R_s) {
+        float sphere_z = sqrt(R_s * R_s - dot(st, st));
+        if (z_p < sphere_z) {
+          occluded = true;
+        }
+      }
+      
+      float intensity = 0.0;
+      if (occluded) {
+        if (is_dashed_occluded > 0.5) {
+          float dash = step(fract(theta_p * 12.0 / 3.14159265), 0.5);
+          intensity = smoothstep(0.008, 0.0, d_screen) * dash * 0.15;
+        }
+      } else {
+        intensity = smoothstep(0.008, 0.0, d_screen) * 0.4;
+      }
+      return intensity;
+    }
+
+    float drawSatellite(vec2 st, float R_s, vec3 e1, vec3 e2, float a, float b, float sat_t) {
+      vec3 sat_proj = e1 * (a * cos(sat_t)) + e2 * (b * sin(sat_t));
+      
+      bool sat_occluded = false;
+      if (length(sat_proj.xy) < R_s) {
+        float sphere_z = sqrt(R_s * R_s - dot(sat_proj.xy, sat_proj.xy));
+        if (sat_proj.z < sphere_z) {
+          sat_occluded = true;
+        }
+      }
+      
+      if (!sat_occluded) {
+        return smoothstep(0.012, 0.0, length(st - sat_proj.xy)) * 0.8;
+      }
+      return 0.0;
+    }
+
+    float drawSatelliteRay(vec2 st, float R_s, vec3 sat_proj) {
+      float d = distToSegment(st, vec2(0.0), sat_proj.xy);
+      float len = length(sat_proj.xy);
+      float d_ray = length(st);
+      if (d_ray > len) return 0.0;
+      
+      if (d_ray < R_s) {
+        float sphere_z = sqrt(R_s * R_s - d_ray * d_ray);
+        float t_line = d_ray / (len + 0.001);
+        float z_line = sat_proj.z * t_line;
+        if (z_line < sphere_z) return 0.0;
+      }
+      
+      float ray_dash = step(fract(d_ray * 24.0), 0.5);
+      return smoothstep(0.004, 0.0, d) * ray_dash * 0.3;
+    }
+
+    float hash(vec2 p) {
+      p = fract(p * vec2(127.1, 311.7));
+      p += dot(p, p + 19.19);
+      return fract(p.x * p.y);
+    }
+    float noise(vec2 p) {
+      vec2 i = floor(p), f = fract(p);
+      f = f*f*(3.0-2.0*f);
+      return mix(
+        mix(hash(i), hash(i+vec2(1.0,0.0)), f.x),
+        mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), f.x), f.y);
+    }
+    float fbm(vec2 p) {
+      float v=0.0, a=0.5;
+      mat2 m = mat2(1.6,1.2,-1.2,1.6);
+      for(int i=0;i<6;i++){ v+=a*noise(p); p=m*p; a*=0.5; }
+      return v;
+    }
+
+    float hash3(vec3 p) {
+      return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453123);
+    }
+    float noise3(vec3 p) {
+      vec3 i = floor(p);
+      vec3 f = fract(p);
+      vec3 u = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(mix(hash3(i + vec3(0.0,0.0,0.0)), hash3(i + vec3(1.0,0.0,0.0)), u.x),
+            mix(hash3(i + vec3(0.0,1.0,0.0)), hash3(i + vec3(1.0,1.0,0.0)), u.x), u.y),
+        mix(mix(hash3(i + vec3(0.0,0.0,1.0)), hash3(i + vec3(1.0,0.0,1.0)), u.x),
+            mix(hash3(i + vec3(0.0,1.0,1.0)), hash3(i + vec3(1.0,1.0,1.0)), u.x), u.y), u.z
+      );
+    }
+    vec3 displace3(vec3 p) {
+      float n1 = noise3(p * 22.0) * 0.6 + noise3(p * 44.0) * 0.4;
+      float n2 = noise3(p * 22.0 + vec3(17.0, 37.0, 57.0)) * 0.6 + noise3(p * 44.0 + vec3(17.0, 37.0, 57.0)) * 0.4;
+      return vec3(n1 - 0.5, n2 - 0.5, 0.0);
+    }
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / u_res;
+      float ar = u_res.x / u_res.y;
+
+      /* ── Large-scale aging stains (drifting like clouds) ── */
+      vec2 ap = uv * vec2(ar, 1.0);
+      float age  = fbm(ap * 2.1 + vec2(u_time * 0.05, u_time * 0.03));
+      float age2 = fbm(ap * 1.35 + vec2(2.9 - u_time * 0.04, u_time * 0.02));
+      float age3 = fbm(ap * 3.8  + vec2(u_time * 0.02, 1.7 - u_time * 0.05));
+
+      /* ── Paper fibers (wavy horizontal strands) ── */
+      float wy  = uv.y * 340.0 + noise(vec2(uv.x*3.5 + u_time*0.1, uv.y*2.2)) * 2.4;
+      float fib = noise(vec2(uv.x*ar*5.0, wy))      * 0.50
+                + noise(vec2(uv.x*ar*12.0, wy*2.1)) * 0.25
+                + noise(vec2(uv.x*ar*26.0, wy*4.2)) * 0.12;
+
+      /* ── Cross fibers (vertical) ── */
+      float wx   = uv.x * ar * 180.0 + noise(vec2(uv.x*2.0, uv.y*4.0 + u_time*0.1)) * 1.2;
+      float cfib = noise(vec2(wx, uv.y*5.0)) * 0.18;
+
+      /* ── Fine grain (static) ── */
+      float grain = (hash(uv * u_res) - 0.5) * 0.018;
+
+      /* ── Colors ── */
+      vec3 col = u_C_paper;
+      col = mix(col, u_C_aged,  age * age2 * 0.55);
+      col = mix(col, u_C_aged,  age3 * 0.25);
+      col = mix(col, u_C_fiber, fib  * 0.048);
+      col = mix(col, u_C_dark,  cfib * 0.055);
+      col += grain;
+
+      /* ── UNIQUE MATHEMATICAL BLUEPRINT ── */
+      vec2 center = u_res * (u_res.x > 768.0 ? vec2(0.25, 0.60) : vec2(0.5, 0.85));
+      vec2 st = (gl_FragCoord.xy - center) / min(u_res.x, u_res.y);
+      float r = length(st);
+      float theta = atan(st.y, st.x);
+
+      float cam_y = u_time * 0.015; // Camera slow orbit
+      float R_s = 0.11;             // Globe radius
+
+      // 1. Central Globe rotating procedural Fibonacci grid & nested gyroscope
+      float globe_grid = 0.0;
+      
+      // Outer sphere
+      float outer_grid = 0.0;
+      if (r <= R_s) {
+        float z = sqrt(R_s * R_s - r * r);
+        vec3 P = vec3(st.x, st.y, z);
+        
+        // Unproject screen-space point P back to celestial space, then spin it around the Y-axis (polar axis)
+        vec3 P_celestial = unproject(P, cam_y);
+        vec3 rot_P = rotateY(P_celestial, -u_time * 0.08); // Faster spin to make rotation more visible
+        vec3 norm_P = rot_P / R_s;
+        
+        // Convert to spherical coordinates
+        float phi = asin(clamp(norm_P.y, -1.0, 1.0));
+        float lambda = atan(norm_P.z, norm_P.x);
+        
+        // Loxodromic spiral math (curves wrapping the sphere)
+        float tan_val = tan(phi * 0.5 + 0.78539816339);
+        float t = log(clamp(tan_val, 0.005, 200.0));
+        
+        // Double-spiral with golden ratio pitch (fewer spirals for cleaner look)
+        float spirals_num = 4.0;
+        float pitch = 1.61803398875; // Golden ratio pitch
+        
+        // Extremely subtle wave ripple
+        float ripple = sin(phi * 6.0 - u_time * 0.8) * 0.05;
+        
+        float v1 = sin(spirals_num * (lambda - pitch * t + ripple));
+        float v2 = sin(spirals_num * (lambda + pitch * t + ripple));
+        
+        // Antialiased lines using standard derivatives
+        float fw1 = fwidth(v1);
+        float line1 = (fw1 > 0.0) ? smoothstep(1.2, 0.0, abs(v1) / fw1) : smoothstep(0.04, 0.0, abs(v1));
+        
+        float fw2 = fwidth(v2);
+        float line2 = (fw2 > 0.0) ? smoothstep(1.2, 0.0, abs(v2) / fw2) : smoothstep(0.04, 0.0, abs(v2));
+        
+        float spirals = max(line1, line2) * 0.15; // 15% opacity
+        
+        // Longitudinal Meridians (vertical lines that sweep across as it rotates)
+        float lon_lines = sin(lambda * 8.0);
+        float fw_lon = fwidth(lon_lines);
+        float lon_grid = (fw_lon > 0.0) ? smoothstep(1.2, 0.0, abs(lon_lines) / fw_lon) : smoothstep(0.04, 0.0, abs(lon_lines));
+        lon_grid *= 0.20; // 20% opacity for clear rotation cues
+        
+        // Fade out near the poles to avoid visual crowding
+        float pole_fade = smoothstep(0.05, 0.4, cos(phi));
+        spirals *= pole_fade;
+        lon_grid *= pole_fade;
+        
+        // Add subtle latitude concentric rings
+        float lat_lines = sin(phi * 18.0);
+        float fw_lat = fwidth(lat_lines);
+        float lat_grid = (fw_lat > 0.0) ? smoothstep(1.2, 0.0, abs(lat_lines) / fw_lat) : smoothstep(0.04, 0.0, abs(lat_lines));
+        lat_grid *= 0.08 * pole_fade; // 8% opacity
+        
+        outer_grid = max(max(spirals, lon_grid), lat_grid);
+        
+        // Fade near the silhouette edge for 3D depth cueing
+        outer_grid *= smoothstep(0.0, 0.45, z / R_s);
+      }
+      
+      // Inner sphere (counter-rotating core)
+      float inner_grid = 0.0;
+      float R_s_inner = R_s * 0.72;
+      if (r <= R_s_inner) {
+        float z_inner = sqrt(R_s_inner * R_s_inner - r * r);
+        vec3 P_inner = vec3(st.x, st.y, z_inner);
+        
+        vec3 P_celestial_inner = unproject(P_inner, cam_y);
+        // Spin inner sphere in the opposite direction
+        vec3 rot_P_inner = rotateY(P_celestial_inner, u_time * 0.10); // Counter-rotation spin
+        vec3 norm_P_inner = rot_P_inner / R_s_inner;
+        
+        float phi_inner = asin(clamp(norm_P_inner.y, -1.0, 1.0));
+        float lambda_inner = atan(norm_P_inner.z, norm_P_inner.x);
+        
+        // Dynamic scanning grid
+        float meridians = sin(lambda_inner * 12.0);
+        float fw_mer = fwidth(meridians);
+        float line_mer = (fw_mer > 0.0) ? smoothstep(1.2, 0.0, abs(meridians) / fw_mer) : smoothstep(0.04, 0.0, abs(meridians));
+        
+        float equator_inner = sin(phi_inner * 8.0);
+        float fw_eq = fwidth(equator_inner);
+        float line_eq = (fw_eq > 0.0) ? smoothstep(1.2, 0.0, abs(equator_inner) / fw_eq) : smoothstep(0.04, 0.0, abs(equator_inner));
+        
+        inner_grid = max(line_mer, line_eq) * 0.08; // Very faint (8% opacity)
+        
+        // Fade near the silhouette edge of the inner sphere
+        inner_grid *= smoothstep(0.0, 0.45, z_inner / R_s_inner);
+      }
+      
+      globe_grid = max(outer_grid, inner_grid);
+      float globe_outline = smoothstep(0.004, 0.0, abs(r - R_s)) * 0.6;
+      
+      // Polar rotational axis stick fixed in celestial space along the Y-axis
+      vec3 north_base = vec3(0.0, R_s, 0.0);
+      vec3 north_tip  = vec3(0.0, R_s * 1.35, 0.0);
+      vec3 south_base = vec3(0.0, -R_s, 0.0);
+      vec3 south_tip  = vec3(0.0, -R_s * 1.35, 0.0);
+      
+      vec3 north_base_proj = project(north_base, cam_y);
+      vec3 north_tip_proj  = project(north_tip, cam_y);
+      vec3 south_base_proj = project(south_base, cam_y);
+      vec3 south_tip_proj  = project(south_tip, cam_y);
+      
+      float polar_axis = 0.0;
+      if (north_base_proj.z > 0.0) {
+        float d_n = distToSegment(st, north_base_proj.xy, north_tip_proj.xy);
+        polar_axis = max(polar_axis, smoothstep(0.004, 0.0, d_n) * 0.4);
+      }
+      if (south_base_proj.z > 0.0) {
+        float d_s = distToSegment(st, south_base_proj.xy, south_tip_proj.xy);
+        polar_axis = max(polar_axis, smoothstep(0.004, 0.0, d_s) * 0.4);
+      }
+
+      // 2. Equatorial Reference Ring (celestial reference) fixed in celestial space (ZX plane)
+      vec3 eq_e1 = vec3(1.0, 0.0, 0.0);
+      vec3 eq_e2 = vec3(0.0, 0.0, 1.0);
+      eq_e1 = project(eq_e1, cam_y);
+      eq_e2 = project(eq_e2, cam_y);
+      float eq_ring = drawOrbitLayer(st, R_s, eq_e1, eq_e2, R_s * 1.25, R_s * 1.25, 1.0);
+
+      // 3. Three Keplerian Orbits (ECI Frame basis transformation relative to ZX equator)
+      // Orbit 1: Inc=0.9 (~51 deg), Omega=0, Raan=0 (Circular)
+      vec3 o1_e1 = vec3(1.0, 0.0, 0.0);
+      vec3 o1_e2 = vec3(0.0, 0.0, 1.0);
+      o1_e1 = rotateX(o1_e1, 0.9); o1_e1 = project(o1_e1, cam_y);
+      o1_e2 = rotateX(o1_e2, 0.9); o1_e2 = project(o1_e2, cam_y);
+      float o1_line = drawOrbitLayer(st, R_s, o1_e1, o1_e2, 0.34, 0.34, 1.0);
+
+      // Orbit 2: Inc=1.16 (~66 deg), Omega=-1.57, Raan=2.0 (Elliptical Molniya)
+      vec3 o2_e1 = vec3(1.0, 0.0, 0.0);
+      vec3 o2_e2 = vec3(0.0, 0.0, 1.0);
+      o2_e1 = rotateY(o2_e1, -1.57); o2_e1 = rotateX(o2_e1, 1.16); o2_e1 = rotateY(o2_e1, 2.0); o2_e1 = project(o2_e1, cam_y);
+      o2_e2 = rotateY(o2_e2, -1.57); o2_e2 = rotateX(o2_e2, 1.16); o2_e2 = rotateY(o2_e2, 2.0); o2_e2 = project(o2_e2, cam_y);
+      float o2_line = drawOrbitLayer(st, R_s, o2_e1, o2_e2, 0.42, 0.22, 1.0);
+
+      // Orbit 3: Inc=0.15 (~8 deg), Omega=0.5, Raan=-1.0 (Low Inclination Equatorial)
+      vec3 o3_e1 = vec3(1.0, 0.0, 0.0);
+      vec3 o3_e2 = vec3(0.0, 0.0, 1.0);
+      o3_e1 = rotateY(o3_e1, 0.5); o3_e1 = rotateX(o3_e1, 0.15); o3_e1 = rotateY(o3_e1, -1.0); o3_e1 = project(o3_e1, cam_y);
+      o3_e2 = rotateY(o3_e2, 0.5); o3_e2 = rotateX(o3_e2, 0.15); o3_e2 = rotateY(o3_e2, -1.0); o3_e2 = project(o3_e2, cam_y);
+      float o3_line = drawOrbitLayer(st, R_s, o3_e1, o3_e2, 0.48, 0.48, 1.0);
+
+      // 4. Orbiting Satellites, Anomaly Paths & Radii Vectors
+      float s1_dot = drawSatellite(st, R_s, o1_e1, o1_e2, 0.34, 0.34, u_time * 0.28);
+      float s2_dot = drawSatellite(st, R_s, o2_e1, o2_e2, 0.42, 0.22, u_time * 0.18);
+      float s3_dot = drawSatellite(st, R_s, o3_e1, o3_e2, 0.48, 0.48, u_time * 0.22);
+      
+      vec3 s1_proj = o1_e1 * (0.34 * cos(u_time * 0.28)) + o1_e2 * (0.34 * sin(u_time * 0.28));
+      vec3 s2_proj = o2_e1 * (0.42 * cos(u_time * 0.18)) + o2_e2 * (0.22 * sin(u_time * 0.18));
+      vec3 s3_proj = o3_e1 * (0.48 * cos(u_time * 0.22)) + o3_e2 * (0.48 * sin(u_time * 0.22));
+      
+      float s1_ray = drawSatelliteRay(st, R_s, s1_proj);
+      float s2_ray = drawSatelliteRay(st, R_s, s2_proj);
+      float s3_ray = drawSatelliteRay(st, R_s, s3_proj);
+
+      // 5. Background polar coordinate grids (Static 2D references)
+      float compass_rings = 0.0;
+      float ring_scale1 = smoothstep(0.003, 0.0, abs(r - 0.28)) * 0.15;
+      float ring_scale2 = smoothstep(0.003, 0.0, abs(r - 0.45)) * 0.15;
+      compass_rings = (ring_scale1 + ring_scale2) * step(fract(theta * 24.0 / 3.14159265), 0.5);
+
+      // Combine all layers using sequential max updates to prevent deep compiler stack nesting
+      float math_draw = globe_grid;
+      math_draw = max(math_draw, globe_outline);
+      math_draw = max(math_draw, polar_axis);
+      math_draw = max(math_draw, eq_ring);
+      math_draw = max(math_draw, o1_line);
+      math_draw = max(math_draw, o2_line);
+      math_draw = max(math_draw, o3_line);
+      math_draw = max(math_draw, s1_dot);
+      math_draw = max(math_draw, s2_dot);
+      math_draw = max(math_draw, s3_dot);
+      math_draw = max(math_draw, s1_ray);
+      math_draw = max(math_draw, s2_ray);
+      math_draw = max(math_draw, s3_ray);
+      math_draw = max(math_draw, compass_rings);
+      
+      // Blend using actual INK color but at a delicate opacity watermark level
+      col = mix(col, u_C_ink, math_draw * 0.25); // Elegant 25% opacity
+
+      /* ── Vignette + edge burn ── */
+      vec2 vc = uv * 2.0 - 1.0;
+      float vig = 1.0 - dot(vc*vec2(0.88,1.0), vc*vec2(0.88,1.0)) * 0.20;
+      float eb  = smoothstep(0.0,0.048,uv.x) * smoothstep(1.0,0.952,uv.x)
+                * smoothstep(0.0,0.034,uv.y) * smoothstep(1.0,0.966,uv.y);
+      col *= vig * mix(0.84, 1.0, eb);
+
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
+  function mkShader(type: number, src: string) {
+    const s = glContext.createShader(type);
+    if (!s) return null;
+    glContext.shaderSource(s, src);
+    glContext.compileShader(s);
+    if (!glContext.getShaderParameter(s, glContext.COMPILE_STATUS)) {
+      console.error('Shader:', glContext.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+
+  const vs = mkShader(glContext.VERTEX_SHADER, VS);
+  const fs = mkShader(glContext.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) return;
+
+  const prog = glContext.createProgram();
+  if (!prog) return;
+  glContext.attachShader(prog, vs);
+  glContext.attachShader(prog, fs);
+  glContext.linkProgram(prog);
+  if (!glContext.getProgramParameter(prog, glContext.LINK_STATUS)) {
+    console.error('Link:', glContext.getProgramInfoLog(prog));
+    return;
+  }
+  glContext.useProgram(prog);
+
+  const buf = glContext.createBuffer();
+  glContext.bindBuffer(glContext.ARRAY_BUFFER, buf);
+  glContext.bufferData(glContext.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), glContext.STATIC_DRAW);
+  const aPos = glContext.getAttribLocation(prog, 'a_pos');
+  glContext.enableVertexAttribArray(aPos);
+  glContext.vertexAttribPointer(aPos, 2, glContext.FLOAT, false, 0, 0);
+
+  const uRes  = glContext.getUniformLocation(prog, 'u_res');
+  const uTime = glContext.getUniformLocation(prog, 'u_time');
+
+  const uCPaper = glContext.getUniformLocation(prog, 'u_C_paper');
+  const uCAged  = glContext.getUniformLocation(prog, 'u_C_aged');
+  const uCFiber = glContext.getUniformLocation(prog, 'u_C_fiber');
+  const uCDark  = glContext.getUniformLocation(prog, 'u_C_dark');
+  const uCInk   = glContext.getUniformLocation(prog, 'u_C_ink');
+
+
+
+  // Helper to parse CSS RGB variable into normalized floats [0..1]
+  function parseCSSColor(varName: string, defaultRGB: [number, number, number]): [number, number, number] {
+    const style = getComputedStyle(document.documentElement);
+    let val = style.getPropertyValue(varName).trim();
+    if (!val) {
+      val = getComputedStyle(document.body).getPropertyValue(varName).trim();
+    }
+    if (!val) return defaultRGB;
+    const parts = val.split(',').map(x => parseFloat(x.trim()));
+    if (parts.length === 3 && parts.every(x => !isNaN(x))) {
+      return [parts[0] / 255, parts[1] / 255, parts[2] / 255];
+    }
+    return defaultRGB;
+  }
+
+  // Clear previous hot-reloaded animation loops to prevent collision
+  if ((window as any).__bgAnimId) {
+    cancelAnimationFrame((window as any).__bgAnimId);
+  }
+
+  // --- Animation control state ---
+  let isPaused = localStorage.getItem('animation') === 'paused';
+  let accumulatedTime = 0;
+  let lastTime = Date.now();
+
+  function draw() {
+    glContext.useProgram(prog);
+    if (uTime) {
+      glContext.uniform1f(uTime, accumulatedTime);
+    }
+    glContext.drawArrays(glContext.TRIANGLE_STRIP, 0, 4);
+  }
+
+  function animate() {
+    if (isPaused) return;
+    const now = Date.now();
+    const delta = (now - lastTime) / 1000;
+    lastTime = now;
+    accumulatedTime += delta;
+
+    draw();
+    (window as any).__bgAnimId = requestAnimationFrame(animate);
+  }
+
+  function updateUniformColors() {
+    glContext.useProgram(prog);
+    const paper = parseCSSColor('--webgl-paper', [245, 239, 224]);
+    const aged  = parseCSSColor('--webgl-aged', [215, 203, 177]);
+    const fiber = parseCSSColor('--webgl-fiber', [241, 231, 211]);
+    const dark  = parseCSSColor('--webgl-dark', [225, 217, 201]);
+    const ink   = parseCSSColor('--color-text-muted', [107, 76, 42]); // Text/Ink color
+
+    if (uCPaper) glContext.uniform3f(uCPaper, paper[0], paper[1], paper[2]);
+    if (uCAged) glContext.uniform3f(uCAged, aged[0], aged[1], aged[2]);
+    if (uCFiber) glContext.uniform3f(uCFiber, fiber[0], fiber[1], fiber[2]);
+    if (uCDark) glContext.uniform3f(uCDark, dark[0], dark[1], dark[2]);
+    if (uCInk) glContext.uniform3f(uCInk, ink[0], ink[1], ink[2]);
+
+    draw();
+  }
+
+  // Monitor DOM changes to update colors immediately and manage animation play/pause
+  const observer = new MutationObserver((mutations) => {
+    let animAttrChanged = false;
+    for (const m of mutations) {
+      if (m.attributeName === 'data-animation') {
+        animAttrChanged = true;
+      }
+    }
+
+    if (animAttrChanged) {
+      const paused = document.body.getAttribute('data-animation') === 'paused';
+      if (paused !== isPaused) {
+        isPaused = paused;
+        if (!isPaused) {
+          lastTime = Date.now();
+          if ((window as any).__bgAnimId) {
+            cancelAnimationFrame((window as any).__bgAnimId);
+          }
+          animate();
+        }
+      }
+    }
+
+    updateUniformColors();
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  observer.observe(document.body, { attributes: true, attributeFilter: ['data-theme', 'data-animation'] });
+
+  // Initial color setup and draw
+  updateUniformColors();
+
+  function resize() {
+    const W = canvas.width  = window.innerWidth;
+    const H = canvas.height = window.innerHeight;
+    glContext.viewport(0, 0, W, H);
+    if (uRes) {
+      glContext.uniform2f(uRes, W, H);
+    }
+    draw();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  if (!isPaused) {
+    animate();
+  } else {
+    draw();
+  }
+})();
+</script>

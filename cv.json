@@ -1,0 +1,237 @@
+{
+  "analyticsCode": "",
+  "pageLayout": "two-column",
+  "basics": {
+    "name": "Garrett Comes",
+    "label": "Space Propulsion Engineering Intern & Scientific Software Developer",
+    "image": "/avatar.png",
+    "email": "",
+    "url": "https://garrettcomes.me",
+    "summary": "Aerospace engineer focused on space propulsion hardware, fluid systems, and scientific software. Since 2021, I have worked at Lockheed Martin Space in Littleton, Colorado, supporting propulsion design and analysis while building independent tools in Rust and Python for CFD, orbital visualization, embedded control, reproducible build tracing, and ML sampling experiments.",
+    "theme": "parchment",
+    "location": {
+      "address": "Lockheed Martin Space",
+      "city": "Littleton",
+      "countryCode": "US",
+      "region": "Colorado"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "icon": "mdi:github",
+        "username": "GHawk1124",
+        "url": "https://github.com/GHawk1124"
+      }
+    ]
+  },
+  "education": [
+    {
+      "institution": "Georgia Institute of Technology",
+      "url": "https://www.gatech.edu",
+      "area": "Astrodynamics and Flight Mechanics",
+      "studyType": "B.S. Aerospace Engineering",
+      "startDate": "2020-08-01",
+      "endDate": "2024-05-01",
+      "courses": [
+        "Aerodynamics",
+        "Aircraft Flight Dynamics",
+        "Jet and Rocket Propulsion",
+        "Finite Element Analysis",
+        "Aerothermodynamics",
+        "Computational Fluid Dynamics",
+        "Control System Design"
+      ]
+    }
+  ],
+  "work": [
+    {
+      "name": "Lockheed Martin Space",
+      "position": "Space Propulsion Engineering Intern",
+      "location_type": "Onsite",
+      "location": "Littleton, CO",
+      "url": "https://www.lockheedmartin.com/en-us/capabilities/space.html",
+      "startDate": "2021-06-01",
+      "endDate": null,
+      "summary": "Work on space propulsion systems and supporting analysis for flight and test hardware, spanning component design, fluid behavior, electromagnetic effects, and hardware verification.",
+      "responsibilities": [
+        "Design and analyze propulsion hardware and fluid-system components, including valves, interfaces, and test support equipment.",
+        "Create and maintain Creo CAD models, layouts, and drawings for propulsion assemblies and related mechanical hardware.",
+        "Perform CFD and slosh analysis to study pressure losses, transient loads, propellant behavior, and system-level fluid risks.",
+        "Build magnetic simulation models and test approaches for magnetically actuated or sensed hardware, then correlate analysis with bench and system testing.",
+        "Support propulsion hardware test campaigns, requirements verification, anomaly investigation, and cross-functional design reviews with systems, manufacturing, and test teams."
+      ],
+      "achievements": [
+        "Connected design, analysis, and test work across propulsion components so model assumptions could be checked against real hardware behavior.",
+        "Developed engineering software outside the day job to sharpen numerical methods, GPU visualization, embedded controls, and reproducible analysis workflows."
+      ],
+      "skills": {
+        "Space Propulsion": "mdi:rocket-launch-outline",
+        "Valves": "mdi:valve",
+        "Creo CAD": "mdi:cube-scan",
+        "CFD / Slosh": "mdi:waves",
+        "Magnetic Simulation": "mdi:magnet",
+        "Testing": "mdi:tools"
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "Rust",
+      "icon": "simple-icons:rust",
+      "level": "Advanced"
+    },
+    {
+      "name": "Python",
+      "icon": "simple-icons:python",
+      "level": "Advanced"
+    },
+    {
+      "name": "C++",
+      "icon": "simple-icons:cplusplus",
+      "level": "Advanced"
+    },
+    {
+      "name": "MATLAB / Simulink",
+      "icon": "ri:function-line",
+      "level": "Advanced"
+    },
+    {
+      "name": "Space Propulsion",
+      "icon": "mdi:rocket-launch-outline",
+      "level": "Professional"
+    },
+    {
+      "name": "Valves & Fluid Systems",
+      "icon": "mdi:pipe-valve",
+      "level": "Professional"
+    },
+    {
+      "name": "Creo CAD",
+      "icon": "mdi:cube-scan",
+      "level": "Professional"
+    },
+    {
+      "name": "CFD & Slosh Analysis",
+      "icon": "mdi:waves",
+      "level": "Professional"
+    },
+    {
+      "name": "Magnetic Simulation & Test",
+      "icon": "mdi:magnet",
+      "level": "Professional"
+    },
+    {
+      "name": "Embedded Controls",
+      "icon": "mdi:chip",
+      "level": "Advanced"
+    },
+    {
+      "name": "Orbital Mechanics",
+      "icon": "mdi:orbit",
+      "level": "Advanced"
+    },
+    {
+      "name": "GPU Visualization",
+      "icon": "mdi:chart-line",
+      "level": "Advanced"
+    },
+    {
+      "name": "Git & Linux",
+      "icon": "mdi:git",
+      "level": "Advanced"
+    },
+    {
+      "name": "Scientific Computing",
+      "icon": "mdi:function-variant",
+      "level": "Advanced"
+    }
+  ],
+  "projects": [
+    {
+      "name": "diffusion-ebm",
+      "slug": "diffusion-ebm",
+      "isActive": true,
+      "description": "Research prototype combining masked-diffusion language-model logits with a sparse factor-graph sampler to improve multi-mask consistency at a fixed neural-forward budget.",
+      "highlights": [
+        "THRML joint sampler, hard-equality factors, and learned pairwise-factor scaffold",
+        "Pareto sweeps against Mask-Predict and top-k ancestral baselines",
+        "Python 3.12, PyTorch, JAX, transformers, marimo notebooks, and CUDA workflows"
+      ],
+      "github": "https://github.com/GHawk1124/diffusion-ebm"
+    },
+    {
+      "name": "Valurile",
+      "slug": "valurile",
+      "isActive": true,
+      "description": "Rust CFD and visualization workspace for lattice-Boltzmann flow simulation, CUDA/OpenGL interop, airfoil and cylinder obstacles, and an egui desktop interface.",
+      "highlights": [
+        "LBM solver paths in Rust with CUDA acceleration work",
+        "Interactive velocity, density, pressure, and vorticity visualization",
+        "Airfoil/cylinder obstacle controls, force histories, and drag/lift plots"
+      ],
+      "github": "https://github.com/GHawk1124/Valurile"
+    },
+    {
+      "name": "repx",
+      "slug": "repx",
+      "isActive": true,
+      "description": "Reproducible process attestation tool for supply-chain security that traces build commands with eBPF, canonicalizes file operations, and verifies Merkle-root provenance on rerun.",
+      "highlights": [
+        "Aya eBPF probes plus a Rust userspace CLI",
+        "Trace and verify commands for reproducible build attestations",
+        "SLSA-oriented JSON predicate and divergence diagnostics"
+      ],
+      "github": "https://github.com/GHawk1124/repx"
+    },
+    {
+      "name": "spacedb",
+      "slug": "spacedb",
+      "isActive": true,
+      "description": "3D space-object database and orbital mechanics visualizer for satellites and debris using Space-Track, GCAT, DISCOS, SGP4 propagation, high-fidelity decay tools, and WGPU rendering.",
+      "highlights": [
+        "Interactive Earth, satellite, orbit-track, and catalog browser",
+        "Collision, decay, and debris-value analysis commands",
+        "Rust, egui, WGPU, satkit, Nyx, ANISE, and Rayon"
+      ],
+      "github": "https://github.com/SCRAPSAT/spacedb"
+    },
+    {
+      "name": "FEM Live Demo",
+      "slug": "fem-live-demo",
+      "isActive": false,
+      "description": "A standalone WebAssembly finite-element simulation demo kept live on the portfolio as a lightweight browser-based engineering visualization.",
+      "highlights": [
+        "Rust-generated WebAssembly delivered as a static GitHub Pages demo",
+        "Canvas-based simulation surface with no server dependency",
+        "Preserved under the same public URL during the Astro migration"
+      ],
+      "demo": "/fem_rust_ae/"
+    },
+    {
+      "name": "Stream Sim",
+      "slug": "stream-sim",
+      "isActive": false,
+      "description": "Browser-based fluid simulation demo from the current portfolio, preserved as a standalone interactive page with streamline visualization controls.",
+      "highlights": [
+        "Live static demo with dashboard-style controls",
+        "Interactive flow-field and streamline visualization",
+        "Kept separate from the newer Valurile Rust CFD workspace"
+      ],
+      "demo": "/simulator/sim.html"
+    },
+    {
+      "name": "Eddy Current Braking System",
+      "slug": "eddy-current-braking",
+      "isActive": true,
+      "description": "Embedded controls and magnetic braking project combining Rust no_std firmware for an Arduino Due, AS5048A encoder feedback, PWM motor drive, UART telemetry, an egui dashboard, and Python/NGSolve magnetic simulation.",
+      "highlights": [
+        "Feedforward and PI speed-control modes with live tuning",
+        "Magnetic encoder, H-bridge PWM, slew limits, and serial telemetry",
+        "Nix-based firmware, dashboard, and simulation workflows"
+      ],
+      "github": "https://github.com/GHawk1124/4610_project"
+    }
+  ],
+  "certificates": [],
+  "images": null
+}
