@@ -1,6 +1,7 @@
 ---
 import CVRaw from "@cv";
 import type { CV as CVType } from "@/cv";
+import { projectDetails } from "@/data/projectDetails";
 const CV = CVRaw as CVType;
 
 // Generate a clean text representation of the CV to inject into the LLM system prompt
@@ -12,20 +13,27 @@ const cvSummary = {
     institution: edu.institution,
     area: edu.area,
     studyType: edu.studyType,
+    dates: `${edu.startDate} to ${edu.endDate}`,
     courses: edu.courses
   })),
   work: CV.work.map(job => ({
     company: job.name,
     position: job.position,
+    location: job.location,
     summary: job.summary,
     responsibilities: job.responsibilities,
+    achievements: job.achievements,
     skills: Object.keys(job.skills || {})
   })),
+  publications: [
+    "SCRAP: contactless detumbling and capture of orbital debris via a high-temperature superconducting coil. Extended abstract in preparation for AIAA SciTech 2027, with co-authors from Lockheed Martin, Astranis, and Boeing. Draft and senior design final report are downloadable on this site."
+  ],
   skills: CV.skills.map(sk => `${sk.name} (${sk.level})`),
   projects: CV.projects.map(proj => ({
     name: proj.name,
     description: proj.description,
-    highlights: proj.highlights
+    highlights: proj.highlights,
+    detail: proj.slug && projectDetails[proj.slug] ? projectDetails[proj.slug].deck : undefined
   }))
 };
 
@@ -375,15 +383,17 @@ const cvContextString = JSON.stringify(cvSummary);
     responseTextDiv.classList.add('animate-pulse');
 
     try {
-      const systemPrompt = `You are a helpful, intelligent AI assistant for Garrett Comes's portfolio website. Garrett is an Aerospace Engineering & Software Development student/graduate from Georgia Tech, specializing in flight mechanics, astrodynamics, and high-performance simulation software (Rust, C++, Python).
+      const systemPrompt = `You are the AI assistant for Garrett Comes's portfolio website. Garrett is an aerospace engineer from Georgia Tech (B.S. Aerospace Engineering, propulsion concentration, graduating August 2026) who builds high-performance simulation software in Rust, Python, C++, and CUDA, with four summers of propulsion engineering at Lockheed Martin Space.
 
-Here is Garrett's resume information to answer questions:
+Here is Garrett's full resume and project information; treat it as the source of truth:
 ${cvContextString}
 
 Instructions:
 - Respond warmly and professionally. Keep answers concise, direct, and conversational (ideally under 3 sentences).
 - Refer to Garrett in the third person or represent yourself as his personal portfolio AI assistant.
-- Do not make up facts; if you do not know something, politely state that you can only answer questions about Garrett's academic and professional background.`;
+- Present Garrett and his work positively and confidently. When asked whether he can do something or would fit a role, ground an encouraging answer in the specific projects and experience above rather than hedging.
+- Never criticize, undersell, or speculate negatively about Garrett or his work. If asked for weaknesses or negative takes, redirect to what the record shows and suggest contacting Garrett directly.
+- Do not make up facts. If something is not covered above, say you can only answer from Garrett's background, and point the visitor to the project pages, the downloadable CV, or garrett.comes@gatech.edu.`;
 
       const messages = [
         { role: "system", content: systemPrompt },

@@ -7,7 +7,7 @@
     "image": "/avatar.png",
     "email": "garrett.comes@gatech.edu",
     "url": "https://garrettcomes.me",
-    "summary": "Aerospace engineer (Georgia Tech, propulsion) focused on space propulsion hardware, fluid systems, and scientific software. I have interned summers at Lockheed Martin Space (Civil & Commercial, Waterton campus, Denver, Colorado), supporting propulsion design and analysis on flight programs, while building independent tools in Rust and Python for CFD, orbital visualization, superconducting-coil multiphysics, embedded control, reproducible build tracing, and ML sampling experiments.",
+    "summary": "Aerospace engineer trained at Georgia Tech with a propulsion concentration. Four summers at Lockheed Martin Space in Denver supporting propulsion design and analysis on flight programs. I build my own tools in Rust and Python: GPU CFD solvers, superconducting-coil multiphysics, orbital analysis, embedded control, reproducible build tracing, and sampling research on thermodynamic hardware.",
     "theme": "parchment",
     "location": {
       "address": "Lockheed Martin Space",
@@ -167,10 +167,10 @@
       "report": "/pdfs/FinalReportSCRAP.pdf"
     },
     {
-      "name": "diffusion-ebm",
+      "name": "Thermodynamic Sampling Unit Research",
       "slug": "diffusion-ebm",
       "isActive": true,
-      "description": "Research prototype combining masked-diffusion language-model logits with a sparse factor-graph sampler to improve multi-mask consistency at a fixed neural-forward budget.",
+      "description": "Research combining masked-diffusion language-model logits with a sparse factor-graph sampler on Extropic's THRML simulator, improving multi-mask consistency at a fixed neural-forward budget.",
       "highlights": [
         "THRML joint sampler, hard-equality factors, and learned pairwise-factor scaffold",
         "Pareto sweeps against Mask-Predict and top-k ancestral baselines",

@@ -47,14 +47,14 @@ export const projectDetails: Record<string, ProjectDetail> = {
       {
         title: "Concept",
         body: [
-          "Most orbital debris is tumbling, and you cannot grapple what you cannot slow down. SCRAP's answer is contactless: a high-temperature superconducting coil at the end-effector of a robotic arm induces eddy currents in the target's conductive structure, removing angular momentum before capture — no plume impingement, no mechanical contact with an uncooperative object.",
+          "Most orbital debris is tumbling, and you cannot grapple what you cannot slow down. SCRAP slows it down without touching it: a high-temperature superconducting coil at the end-effector of a robotic arm induces eddy currents in the target's conductive structure, removing angular momentum before capture. No plume impingement, no mechanical contact with an uncooperative object.",
           "The extended abstract for AIAA SciTech 2027 covers the concept of operations, mission planning, subsystem design, and risk assessment, with co-authors spanning Lockheed Martin, Astranis, and Boeing.",
         ],
       },
       {
         title: "My contributions",
         body: [
-          "The concept only closes if the coil survives its own physics. I built a coupled electromagnetic-thermal quench simulation of the YBCO pancake coil in FEniCSx: an H-formulation EM solve with E-J power-law resistivity and per-turn tape meshing, staggered against an axisymmetric heat equation with radiation and cold-finger boundary conditions. It establishes safe transport-current margins and whether passive radiative cooling can hold the coil below its 92 K critical temperature.",
+          "The concept only closes if the coil survives its own physics. I built a coupled electromagnetic-thermal quench simulation of the YBCO pancake coil in FEniCSx: an H-formulation EM solve with E-J power-law resistivity and per-turn tape meshing, staggered against an axisymmetric heat equation with radiation and cold-finger boundary conditions. It answers two questions that decide feasibility: how much transport current the coil tolerates, and whether passive radiative cooling alone holds it below its 92 K critical temperature.",
           "Mission planning runs on spacedb, the space-object database and servicing-route planner built alongside this project, and DDPG reinforcement-learning agents were trained on the eddy-current detumbling dynamics to explore closed-loop control.",
         ],
         bullets: [
@@ -67,8 +67,8 @@ export const projectDetails: Record<string, ProjectDetail> = {
   },
   "diffusion-ebm": {
     slug: "diffusion-ebm",
-    eyebrow: "Masked diffusion + factor graphs",
-    title: "diffusion-ebm",
+    eyebrow: "Masked diffusion + factor graphs on THRML",
+    title: "Thermodynamic Sampling Unit Research",
     deck:
       "A research prototype that asks whether explicit factor-graph structure can improve multi-mask agreement when a masked-diffusion language model only supplies per-position logits.",
     stack: ["Python 3.12", "PyTorch", "JAX", "transformers", "THRML", "marimo", "CUDA"],
@@ -389,7 +389,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       {
         title: "Status and war stories",
         body: [
-          "Stage 1 — seed to a full GCC 15/musl/Python/Guile sysroot — has executed end-to-end on real hardware, verified against 314 hash-pinned distfiles including deterministically regenerated git tarballs. Stage 2 (Guix on musl) is deep in its first real execution; stages 3 and 4 are written and statically verified.",
+          "Stage 1, which takes the seed to a full GCC 15/musl/Python/Guile sysroot, has executed end-to-end on real hardware, verified against 314 hash-pinned distfiles including deterministically regenerated git tarballs. Stage 2, Guix on musl, is deep in its first real execution. Stages 3 and 4 are written and statically verified.",
           "The debugging log is half the value: rebuilding Guile shared to fix a C-extension segfault, stubbing musl's missing execinfo.h, and repeatedly fixing 2003-era K&R code that GCC 15's new C23 default now rejects. Bootstrapping is archaeology with a linker.",
         ],
       },

@@ -6,7 +6,7 @@
   :root {
     /* DEFAULT PARCHMENT THEME - LIGHT MODE */
     --color-text-base: 42, 26, 10;          /* --ink: #2a1a0a */
-    --color-text-muted: 107, 76, 42;        /* --ink-light: #6b4c2a */
+    --color-text-muted: 89, 61, 30;         /* --ink-light, darkened for readability: #593d1e */
     --color-text-inverted: 245, 239, 224;   /* --paper: #f5efe0 */
     --color-fill: 245, 239, 224;            /* --paper: #f5efe0 */
     --muted: 200, 184, 154;                 /* --ink-ghost: #c8b89a */
