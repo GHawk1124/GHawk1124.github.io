@@ -48,7 +48,7 @@ const cvContextString = JSON.stringify(cvSummary);
   <div class="flex items-center justify-between px-4 py-3 border-b border-skin-muted/20 bg-skin-fill/95 select-none">
     <div class="flex items-center gap-2">
       <span id="ai-drawer-status-dot" class="w-2.5 h-2.5 rounded-full bg-stone-400"></span>
-      <span class="font-sc text-[11px] tracking-wider uppercase font-bold text-skin-base">Gemma 2B Local AI</span>
+      <span class="font-sc text-[12px] tracking-wider uppercase font-bold text-skin-base">Gemma 2B Local AI</span>
     </div>
     <button id="ai-drawer-close" class="text-skin-muted hover:text-skin-base text-lg font-bold cursor-pointer p-1 transition-colors leading-none" aria-label="Close Assistant">
       &times;
@@ -56,7 +56,7 @@ const cvContextString = JSON.stringify(cvSummary);
   </div>
 
   <!-- Content Areas -->
-  <div id="ai-content-container" class="flex-1 flex flex-col p-4 overflow-y-auto text-sm">
+  <div id="ai-content-container" class="flex-1 flex flex-col p-4 overflow-y-auto text-base">
     <!-- State 1: Check/Load Screen -->
     <div id="ai-state-uninitialized" class="flex-1 flex flex-col justify-center items-center text-center space-y-4">
       <div class="p-3 bg-skin-button-muted/40 rounded-full border border-skin-muted/20 select-none">
@@ -64,12 +64,12 @@ const cvContextString = JSON.stringify(cvSummary);
       </div>
       <div>
         <h4 class="font-bold text-base text-skin-base">Local WebGPU AI Chat</h4>
-        <p class="text-xs text-skin-muted mt-1 px-4 leading-relaxed">
+        <p class="text-sm text-skin-muted mt-1 px-4 leading-relaxed">
           Chat with an AI model running <strong>100% locally</strong> in your browser via WebGPU. No data leaves your machine.
         </p>
       </div>
       
-      <div class="w-full border border-dashed border-skin-muted/30 rounded-xl p-3 bg-skin-fill/40 text-left text-xs text-skin-muted space-y-1.5 leading-relaxed">
+      <div class="w-full border border-dashed border-skin-muted/30 rounded-xl p-3 bg-skin-fill/40 text-left text-sm text-skin-muted space-y-1.5 leading-relaxed">
         <div class="flex items-center gap-1.5 font-bold text-skin-base select-none">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" class="fill-skin-base"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           Requirements:
@@ -79,7 +79,7 @@ const cvContextString = JSON.stringify(cvSummary);
         <div>• Download size: <strong>~1.6 GB</strong> (cached locally)</div>
       </div>
 
-      <button id="ai-init-btn" class="w-full bg-skin-button-accent text-skin-inverted hover:bg-skin-button-accent-hover font-bold text-xs tracking-wider uppercase py-3 rounded-xl shadow transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none">
+      <button id="ai-init-btn" class="w-full bg-skin-button-accent text-skin-inverted hover:bg-skin-button-accent-hover font-bold text-sm tracking-wider uppercase py-3 rounded-xl shadow transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none">
         Initialize Gemma AI
       </button>
     </div>
@@ -91,10 +91,10 @@ const cvContextString = JSON.stringify(cvSummary);
       </div>
       <div>
         <h4 class="font-bold text-base text-red-500">WebGPU Not Supported</h4>
-        <p class="text-xs text-skin-muted mt-1 px-4 leading-relaxed">
+        <p class="text-sm text-skin-muted mt-1 px-4 leading-relaxed">
           Your browser or hardware does not support WebGPU, which is required to run local browser models. 
         </p>
-        <p class="text-xs text-skin-muted mt-2 px-4 leading-relaxed">
+        <p class="text-sm text-skin-muted mt-2 px-4 leading-relaxed">
           Please run Chrome, Edge, or Brave with WebGPU enabled.
         </p>
       </div>
@@ -104,19 +104,19 @@ const cvContextString = JSON.stringify(cvSummary);
     <div id="ai-state-loading" class="flex-1 hidden flex flex-col justify-center space-y-6 select-none">
       <div class="text-center space-y-2">
         <div class="inline-block animate-spin rounded-full h-7 w-7 border-2 border-skin-muted border-t-skin-button-accent"></div>
-        <h4 class="font-bold text-sm text-skin-base">Loading Local AI...</h4>
-        <p class="text-xs text-skin-muted">Downloading weights & compiling shaders</p>
+        <h4 class="font-bold text-base text-skin-base">Loading Local AI...</h4>
+        <p class="text-sm text-skin-muted">Downloading weights & compiling shaders</p>
       </div>
       
       <div class="space-y-2">
-        <div class="flex justify-between text-xs text-skin-base font-mono">
+        <div class="flex justify-between text-sm text-skin-base font-mono">
           <span id="ai-loading-step">Connecting...</span>
           <span id="ai-loading-percent">0%</span>
         </div>
         <div class="w-full bg-skin-button-muted/50 rounded-full h-1.5 overflow-hidden border border-skin-muted/20">
           <div id="ai-loading-progress-bar" class="bg-skin-button-accent h-full w-0 transition-all duration-300"></div>
         </div>
-        <p id="ai-loading-detail" class="text-[10px] font-mono text-skin-muted text-center leading-normal break-all"></p>
+        <p id="ai-loading-detail" class="text-[11px] font-mono text-skin-muted text-center leading-normal break-all"></p>
       </div>
     </div>
 
@@ -129,15 +129,15 @@ const cvContextString = JSON.stringify(cvSummary);
 
       <!-- Quick prompts wrapper -->
       <div id="ai-chat-quick-prompts" class="flex flex-col gap-1.5 pt-2 border-t border-skin-muted/20 select-none">
-        <span class="text-[10px] font-sc tracking-wider uppercase font-bold text-skin-muted">Suggested Topics:</span>
+        <span class="text-[11px] font-sc tracking-wider uppercase font-bold text-skin-muted">Suggested Topics:</span>
         <div class="grid grid-cols-1 gap-1">
-          <button class="quick-prompt-chip text-left text-xs px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
+          <button class="quick-prompt-chip text-left text-sm px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
             What is Garrett's experience?
           </button>
-          <button class="quick-prompt-chip text-left text-xs px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
+          <button class="quick-prompt-chip text-left text-sm px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
             Tell me about his Rust 6-DOF simulator
           </button>
-          <button class="quick-prompt-chip text-left text-xs px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
+          <button class="quick-prompt-chip text-left text-sm px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
             What are his engineering skills?
           </button>
         </div>
@@ -153,7 +153,7 @@ const cvContextString = JSON.stringify(cvSummary);
         id="ai-chat-input" 
         placeholder="Ask about Garrett..." 
         autocomplete="off"
-        class="flex-1 bg-skin-button-muted/30 border border-skin-muted/40 rounded-xl px-3 py-2 text-sm text-skin-base placeholder-skin-muted/60 focus:outline-none focus:border-skin-button-accent/70 font-serif"
+        class="flex-1 bg-skin-button-muted/30 border border-skin-muted/40 rounded-xl px-3 py-2 text-base text-skin-base placeholder-skin-muted/60 focus:outline-none focus:border-skin-button-accent/70 font-serif"
       />
       <button 
         type="submit" 
@@ -168,7 +168,7 @@ const cvContextString = JSON.stringify(cvSummary);
 </div>
 
 <!-- Floating Action Button for Mobile/Tablet -->
-<button id="ai-floating-toggle" class="fixed bottom-6 right-6 z-40 bg-skin-fill/90 backdrop-blur-md border border-skin-muted/30 shadow-xl px-4 py-2.5 rounded-full hover:bg-skin-button-muted/40 font-sc text-[10px] tracking-wider uppercase select-none transition-all flex items-center gap-1.5 cursor-pointer lg:hidden">
+<button id="ai-floating-toggle" class="fixed bottom-6 right-6 z-40 bg-skin-fill/90 backdrop-blur-md border border-skin-muted/30 shadow-xl px-4 py-2.5 rounded-full hover:bg-skin-button-muted/40 font-sc text-[11px] tracking-wider uppercase select-none transition-all flex items-center gap-1.5 cursor-pointer lg:hidden">
   <span class="w-1.5 h-1.5 rounded-full bg-stone-400" id="ai-floating-status-dot"></span>
   AI Assistant
 </button>
@@ -345,7 +345,7 @@ const cvContextString = JSON.stringify(cvSummary);
     bubble.className = `flex flex-col space-y-1 max-w-[85%] ${role === 'user' ? 'self-end items-end' : 'self-start items-start'}`;
     
     const textDiv = document.createElement('div');
-    textDiv.className = `px-3 py-2 rounded-xl text-xs leading-relaxed ${
+    textDiv.className = `px-3 py-2 rounded-xl text-sm leading-relaxed ${
       role === 'user' 
         ? 'bg-skin-button-accent text-skin-inverted rounded-tr-none' 
         : 'bg-skin-button-muted/40 border border-skin-muted/20 text-skin-base rounded-tl-none'
@@ -353,7 +353,7 @@ const cvContextString = JSON.stringify(cvSummary);
     textDiv.textContent = content;
     
     const labelSpan = document.createElement('span');
-    labelSpan.className = 'text-[9px] text-skin-muted font-mono px-1 uppercase tracking-wider select-none';
+    labelSpan.className = 'text-[10px] text-skin-muted font-mono px-1 uppercase tracking-wider select-none';
     labelSpan.textContent = role === 'user' ? 'You' : 'Gemma AI';
 
     bubble.appendChild(textDiv);

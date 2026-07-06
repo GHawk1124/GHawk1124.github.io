@@ -22,10 +22,10 @@ const { className, ...rest } = Astro.props;
             <!-- Timeline dot marker -->
             <div class="timeline-dot-custom"></div>
 
-            <header class="relative mt-1 text-xs font-semibold sm:col-span-3">
-              <time class="font-sc text-[11px] tracking-[0.2em] text-skin-muted/70" datetime={startDate} data-title={startDate}>{startYear}</time> 
+            <header class="relative mt-1 text-sm font-semibold sm:col-span-3">
+              <time class="font-sc text-[12px] tracking-[0.2em] text-skin-muted/70" datetime={startDate} data-title={startDate}>{startYear}</time> 
               <span class="text-skin-muted/40 font-sc">&nbsp;&mdash;&nbsp;</span> 
-              <time class="font-sc text-[11px] tracking-[0.2em] text-skin-muted/70" datetime={endDate} data-title={endDate}>{endYear}</time>
+              <time class="font-sc text-[12px] tracking-[0.2em] text-skin-muted/70" datetime={endDate} data-title={endDate}>{endYear}</time>
             </header>
             
             <div class="relative flex flex-col pb-4 sm:col-span-9 font-serif-main">
@@ -42,12 +42,12 @@ const { className, ...rest } = Astro.props;
               </h3>
               
               {(location || location_type) && (
-                <div class="text-[13px] text-skin-muted font-sans font-medium tracking-wide">
+                <div class="text-[14px] text-skin-muted font-sans font-medium tracking-wide">
                   {location} {location && location_type && '·'} {location_type}
                 </div>
               )}
 
-              <div class="mt-4 flex flex-col gap-4 text-[15.5px] leading-relaxed text-skin-base/90">
+              <div class="mt-4 flex flex-col gap-4 text-[16.5px] leading-relaxed text-skin-base/90">
                 {summary && (
                   <p class="font-serif-main text-skin-base/80 leading-relaxed italic">
                     {summary}
@@ -58,8 +58,8 @@ const { className, ...rest } = Astro.props;
                   <div class="after:from-skin-fill dark:after:to-skin-fill/0 flex relative flex-col print:!h-auto gap-3 print:gap-2 after:bg-gradient-to-t after:absolute after:bottom-0 after:w-full print:after:hidden after:h-12 after:content-[''] h-16 group-data-[expanded=true]:after:hidden group-data-[expanded=true]:h-auto overflow-hidden duration-200 ease-out">
                     {responsibilities && responsibilities.length > 0 && (
                       <div class="flex flex-col gap-1.5">
-                        <h4 class="font-sans text-[12px] font-bold tracking-widest text-skin-muted uppercase">Responsibilities:</h4>
-                        <ul class="text-skin-base/80 [&>li]:ml-4 flex list-disc flex-col gap-1.5 font-serif-main text-[14.5px]">
+                        <h4 class="font-sans text-[13px] font-bold tracking-widest text-skin-muted uppercase">Responsibilities:</h4>
+                        <ul class="text-skin-base/80 [&>li]:ml-4 flex list-disc flex-col gap-1.5 font-serif-main text-[15.5px]">
                           {responsibilities.map(responsibility => (
                             <li>{responsibility}</li>
                           ))}
@@ -69,8 +69,8 @@ const { className, ...rest } = Astro.props;
 
                     {achievements && achievements.length > 0 && (
                       <div class="flex flex-col gap-1.5">
-                        <h4 class="font-sans text-[12px] font-bold tracking-widest text-skin-muted uppercase">Achievements:</h4>
-                        <ul class="text-skin-base/80 [&>li]:ml-4 flex list-disc flex-col gap-1.5 font-serif-main text-[14.5px]">
+                        <h4 class="font-sans text-[13px] font-bold tracking-widest text-skin-muted uppercase">Achievements:</h4>
+                        <ul class="text-skin-base/80 [&>li]:ml-4 flex list-disc flex-col gap-1.5 font-serif-main text-[15.5px]">
                           {achievements.map((achievement: string) => (
                             <li>{achievement}</li>
                           ))}
@@ -81,7 +81,7 @@ const { className, ...rest } = Astro.props;
                 )}
 
                 {((responsibilities && responsibilities.length > 0) || (achievements && achievements.length > 0)) && (
-                  <button class="print:hidden group/more w-fit cursor-pointer items-center justify-center gap-1.5 text-[11px] font-sc tracking-widest uppercase text-skin-muted hover:text-skin-base transition-colors flex expand-button">
+                  <button class="print:hidden group/more w-fit cursor-pointer items-center justify-center gap-1.5 text-[12px] font-sc tracking-widest uppercase text-skin-muted hover:text-skin-base transition-colors flex expand-button">
                     <span class="expand-text">Show more</span>
                     <Icon name="ri:arrow-up-s-line" class="w-3.5 h-3.5 group-hover/more:translate-y-0.5 duration-200 ease-out group-data-[expanded=true]:rotate-180" width={14} height={14}></Icon>
                   </button>
@@ -90,7 +90,7 @@ const { className, ...rest } = Astro.props;
                 {skills && (
                   <ul class="flex print:hidden flex-wrap gap-2 mt-2" aria-label="Technologies used">
                     {Object.entries(skills).map(([label, icon]) => (
-                      <li class="bg-skin-button-muted border border-skin-muted/20 text-skin-muted flex gap-1.5 items-center rounded-sm px-2 py-0.5 text-[11px] font-sc tracking-wider hover:text-skin-base transition-colors duration-200">
+                      <li class="bg-skin-button-muted border border-skin-muted/20 text-skin-muted flex gap-1.5 items-center rounded-sm px-2 py-0.5 text-[12px] font-sc tracking-wider hover:text-skin-base transition-colors duration-200">
                         {icon && <Icon name={icon} width={12} height={12} />} <span>{label}</span>
                       </li>
                     ))}

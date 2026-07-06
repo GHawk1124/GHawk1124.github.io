@@ -32,14 +32,14 @@ const renderMath = (equation: string) =>
   <main class="relative mx-auto min-h-screen max-w-5xl px-6 py-10 md:px-12 md:py-16">
     <a
       href="/"
-      class="print:hidden inline-flex items-center gap-2 font-sc text-[11px] tracking-[0.22em] uppercase text-skin-muted hover:text-skin-base transition-colors"
+      class="print:hidden inline-flex items-center gap-2 font-sc text-[12px] tracking-[0.22em] uppercase text-skin-muted hover:text-skin-base transition-colors"
     >
       <Icon name="ri:arrow-left-line" width={14} height={14} />
       Portfolio
     </a>
 
     <section class="mt-10 border-b border-skin-muted/25 pb-10">
-      <p class="font-sc text-[11px] tracking-[0.28em] uppercase text-skin-muted/75">
+      <p class="font-sc text-[12px] tracking-[0.28em] uppercase text-skin-muted/75">
         {detail.eyebrow}
       </p>
       <div class="mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -47,7 +47,7 @@ const renderMath = (equation: string) =>
           <h1 class="text-4xl md:text-6xl font-bold ink-title-hero leading-none">
             {detail.title}
           </h1>
-          <p class="mt-5 text-[17px] md:text-[19px] leading-relaxed text-skin-base/85 italic font-serif-main">
+          <p class="mt-5 text-[18px] md:text-[20px] leading-relaxed text-skin-base/85 italic font-serif-main">
             {detail.deck}
           </p>
         </div>
@@ -58,7 +58,7 @@ const renderMath = (equation: string) =>
               href={project.github}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-muted/60 px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-muted/60 px-3 py-2 font-sc text-[12px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base"
             >
               <Icon name="mdi:github" width={14} height={14} />
               Repository
@@ -67,7 +67,7 @@ const renderMath = (equation: string) =>
           {project.demo && (
             <a
               href={project.demo}
-              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-accent px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-inverted hover:bg-skin-button-accent-hover"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-accent px-3 py-2 font-sc text-[12px] tracking-[0.18em] uppercase text-skin-inverted hover:bg-skin-button-accent-hover"
             >
               <Icon name="ri:play-line" width={14} height={14} />
               Demo
@@ -78,7 +78,7 @@ const renderMath = (equation: string) =>
               href={project.paper}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-accent px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-inverted hover:bg-skin-button-accent-hover"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-accent px-3 py-2 font-sc text-[12px] tracking-[0.18em] uppercase text-skin-inverted hover:bg-skin-button-accent-hover"
             >
               <Icon name="ri:file-text-line" width={14} height={14} />
               Paper
@@ -89,7 +89,7 @@ const renderMath = (equation: string) =>
               href={project.report}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-muted/60 px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-muted/60 px-3 py-2 font-sc text-[12px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base"
             >
               <Icon name="ri:file-text-line" width={14} height={14} />
               Report
@@ -106,13 +106,13 @@ const renderMath = (equation: string) =>
             <h2 class="text-2xl font-bold ink-title-md">{section.title}</h2>
             <div class="mt-4 space-y-4">
               {section.body.map((paragraph) => (
-                <p class="text-[17px] leading-relaxed text-skin-base/90 font-serif-main">
+                <p class="text-[18px] leading-relaxed text-skin-base/90 font-serif-main">
                   {paragraph}
                 </p>
               ))}
             </div>
             {section.bullets && (
-              <ul class="mt-5 space-y-2 pl-5 text-[15.5px] text-skin-base/80 list-disc marker:text-skin-hue">
+              <ul class="mt-5 space-y-2 pl-5 text-[16.5px] text-skin-base/80 list-disc marker:text-skin-hue">
                 {section.bullets.map((item) => (
                   <li>{item}</li>
                 ))}
@@ -127,7 +127,7 @@ const renderMath = (equation: string) =>
             <div class="mt-4 space-y-8">
               {detail.equations.map((eq) => (
                 <div>
-                  <p class="text-[17px] leading-relaxed text-skin-base/90 font-serif-main">
+                  <p class="text-[18px] leading-relaxed text-skin-base/90 font-serif-main">
                     <span class="font-bold not-italic">{eq.label}.</span> {eq.note}
                   </p>
                   <div class="math-inline mt-3 text-skin-base" set:html={renderMath(eq.equation)} />
@@ -140,12 +140,12 @@ const renderMath = (equation: string) =>
 
       <aside class="space-y-8">
         <section>
-          <h2 class="font-sc text-[11px] tracking-[0.24em] uppercase text-skin-muted/80">
+          <h2 class="font-sc text-[12px] tracking-[0.24em] uppercase text-skin-muted/80">
             Stack
           </h2>
           <ul class="mt-4 flex flex-wrap gap-2">
             {detail.stack.map((item) => (
-              <li class="rounded-sm border border-skin-muted/25 bg-skin-button-muted/55 px-2 py-1 font-sc text-[11px] tracking-wider text-skin-muted">
+              <li class="rounded-sm border border-skin-muted/25 bg-skin-button-muted/55 px-2 py-1 font-sc text-[12px] tracking-wider text-skin-muted">
                 {item}
               </li>
             ))}

@@ -14,7 +14,7 @@ const { city, region, address } = location
 <Section>
   <div class='flex flex-col gap-6'>
     <div class='info flex flex-col gap-3 pr-8 print:gap-0 print:pr-0'>
-      <p class="font-sc text-[11px] tracking-[0.25em] text-skin-muted uppercase mb-1">
+      <p class="font-sc text-[12px] tracking-[0.25em] text-skin-muted uppercase mb-1">
         Aerospace Engineering &nbsp;&middot;&nbsp; Software Development
       </p>
       
@@ -35,12 +35,12 @@ const { city, region, address } = location
         {label}
       </h2>
 
-      <div class='flex items-center gap-2 text-sm text-skin-muted/80 font-sans mt-1'>
+      <div class='flex items-center gap-2 text-base text-skin-muted/80 font-sans mt-1'>
         <Icon class='print:hidden' name='mdi:world' width={16} height={16} />
         <span>{address}, {city}, {region}</span>
       </div>
 
-      <footer class='print text-sm text-skin-muted font-sans mt-4'>
+      <footer class='print text-base text-skin-muted font-sans mt-4'>
         {email}
       </footer>
       
@@ -51,7 +51,7 @@ const { city, region, address } = location
               href={`mailto:${email}`}
               title={`Send email to me`}
               target='_blank'
-              class="foot-link font-sc text-[12px] tracking-[0.16em] uppercase text-skin-muted hover:text-skin-base border-b border-skin-muted/30 pb-0.5 transition-colors"
+              class="foot-link font-sc text-[13px] tracking-[0.16em] uppercase text-skin-muted hover:text-skin-base border-b border-skin-muted/30 pb-0.5 transition-colors"
               rel='noopener noreferrer'>
               Email
             </a>
@@ -64,7 +64,7 @@ const { city, region, address } = location
                 href={url}
                 title={`Visit ${name} profile on ${network}`}
                 target='_blank'
-                class="foot-link font-sc text-[12px] tracking-[0.16em] uppercase text-skin-muted hover:text-skin-base border-b border-skin-muted/30 pb-0.5 transition-colors"
+                class="foot-link font-sc text-[13px] tracking-[0.16em] uppercase text-skin-muted hover:text-skin-base border-b border-skin-muted/30 pb-0.5 transition-colors"
                 rel='noopener noreferrer'>
                 {network}
               </a>

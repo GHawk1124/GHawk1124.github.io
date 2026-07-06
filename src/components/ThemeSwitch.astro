@@ -122,8 +122,8 @@ import { Icon } from 'astro-icon/components'
     themeSwitchButton.addEventListener('click', toggleDark)
   }
 
-  // Initialize theme: check localStorage, fallback to system preferences (matchMedia)
-  if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  // Initialize theme: light by default, dark only when explicitly chosen
+  if (localStorage.theme === 'dark') {
     isDark = true
   } else {
     isDark = false
