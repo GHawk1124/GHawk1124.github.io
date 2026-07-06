@@ -5,13 +5,13 @@
     "name": "Garrett Comes",
     "label": "Space Propulsion Engineering Intern & Scientific Software Developer",
     "image": "/avatar.png",
-    "email": "",
+    "email": "garrett.comes@gatech.edu",
     "url": "https://garrettcomes.me",
-    "summary": "Aerospace engineer focused on space propulsion hardware, fluid systems, and scientific software. Since 2021, I have worked at Lockheed Martin Space in Littleton, Colorado, supporting propulsion design and analysis while building independent tools in Rust and Python for CFD, orbital visualization, embedded control, reproducible build tracing, and ML sampling experiments.",
+    "summary": "Aerospace engineer (Georgia Tech, propulsion) focused on space propulsion hardware, fluid systems, and scientific software. I have interned summers at Lockheed Martin Space (Civil & Commercial, Waterton campus, Denver, Colorado), supporting propulsion design and analysis on flight programs, while building independent tools in Rust and Python for CFD, orbital visualization, superconducting-coil multiphysics, embedded control, reproducible build tracing, and ML sampling experiments.",
     "theme": "parchment",
     "location": {
       "address": "Lockheed Martin Space",
-      "city": "Littleton",
+      "city": "Denver",
       "countryCode": "US",
       "region": "Colorado"
     },
@@ -21,6 +21,12 @@
         "icon": "mdi:github",
         "username": "GHawk1124",
         "url": "https://github.com/GHawk1124"
+      },
+      {
+        "network": "LinkedIn",
+        "icon": "mdi:linkedin",
+        "username": "garrett-comes",
+        "url": "https://www.linkedin.com/in/garrett-comes/"
       }
     ]
   },
@@ -28,10 +34,10 @@
     {
       "institution": "Georgia Institute of Technology",
       "url": "https://www.gatech.edu",
-      "area": "Astrodynamics and Flight Mechanics",
+      "area": "Concentration in Propulsion",
       "studyType": "B.S. Aerospace Engineering",
-      "startDate": "2020-08-01",
-      "endDate": "2024-05-01",
+      "startDate": "2022-07-01",
+      "endDate": "2026-08-05",
       "courses": [
         "Aerodynamics",
         "Aircraft Flight Dynamics",
@@ -46,12 +52,12 @@
   "work": [
     {
       "name": "Lockheed Martin Space",
-      "position": "Space Propulsion Engineering Intern",
+      "position": "Space Propulsion Engineering Intern, Civil & Commercial Space",
       "location_type": "Onsite",
-      "location": "Littleton, CO",
+      "location": "Waterton Campus, Denver, CO",
       "url": "https://www.lockheedmartin.com/en-us/capabilities/space.html",
       "startDate": "2021-06-01",
-      "endDate": null,
+      "endDate": "2025-08-01",
       "summary": "Work on space propulsion systems and supporting analysis for flight and test hardware, spanning component design, fluid behavior, electromagnetic effects, and hardware verification.",
       "responsibilities": [
         "Design and analyze propulsion hardware and fluid-system components, including valves, interfaces, and test support equipment.",
@@ -148,6 +154,19 @@
   ],
   "projects": [
     {
+      "name": "SCRAP",
+      "slug": "scrap",
+      "isActive": true,
+      "description": "Georgia Tech senior design: a servicing spacecraft that contactlessly detumbles and captures orbital debris with a robot-arm-mounted YBCO high-temperature-superconducting coil. AIAA SciTech 2027 extended abstract in preparation.",
+      "highlights": [
+        "Coupled EM-thermal quench simulation of the HTS pancake coil in FEniCSx",
+        "Eddy-current detumbling physics, DDPG detumbling agents, and mission planning via spacedb",
+        "Extended abstract with co-authors from Lockheed Martin, Astranis, and Boeing"
+      ],
+      "paper": "/pdfs/SCRAP_SciTech_2027_Extended_Abstract.pdf",
+      "report": "/pdfs/FinalReportSCRAP.pdf"
+    },
+    {
       "name": "diffusion-ebm",
       "slug": "diffusion-ebm",
       "isActive": true,
@@ -205,7 +224,8 @@
         "Canvas-based simulation surface with no server dependency",
         "Preserved under the same public URL during the Astro migration"
       ],
-      "demo": "/fem_rust_ae/"
+      "demo": "/fem_rust_ae/",
+      "github": "https://github.com/GHawk1124/fem_rust_ae"
     },
     {
       "name": "Stream Sim",
@@ -230,6 +250,17 @@
         "Nix-based firmware, dashboard, and simulation workflows"
       ],
       "github": "https://github.com/GHawk1124/4610_project"
+    },
+    {
+      "name": "any-nix-bootstrap",
+      "slug": "any-nix-bootstrap",
+      "isActive": true,
+      "description": "A trust-minimized software bootstrap chain: from a 813-byte auditable hex0 seed through live-bootstrap, GCC/musl/Guile, GNU Guix, and Nix, to building any nixpkgs package fully offline from one hash-verified source manifest.",
+      "highlights": [
+        "Stage 1 (seed to full GCC 15/musl/Python/Guile sysroot) executed end-to-end on real hardware",
+        "314 hash-pinned distfiles including deterministically regenerated git tarballs",
+        "Self-building boot media for chroot, qemu, and bare metal from one POSIX-sh driver"
+      ]
     }
   ],
   "certificates": [],

@@ -73,6 +73,28 @@ const renderMath = (equation: string) =>
               Demo
             </a>
           )}
+          {project.paper && (
+            <a
+              href={project.paper}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-accent px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-inverted hover:bg-skin-button-accent-hover"
+            >
+              <Icon name="ri:file-text-line" width={14} height={14} />
+              Paper
+            </a>
+          )}
+          {project.report && (
+            <a
+              href={project.report}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-sm border border-skin-muted/30 bg-skin-button-muted/60 px-3 py-2 font-sc text-[11px] tracking-[0.18em] uppercase text-skin-muted hover:text-skin-base"
+            >
+              <Icon name="ri:file-text-line" width={14} height={14} />
+              Report
+            </a>
+          )}
         </div>
       </div>
     </section>

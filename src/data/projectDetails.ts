@@ -21,6 +21,50 @@ export interface ProjectDetail {
 }
 
 export const projectDetails: Record<string, ProjectDetail> = {
+  scrap: {
+    slug: "scrap",
+    eyebrow: "Senior design / AIAA SciTech 2027",
+    title: "SCRAP",
+    deck:
+      "A servicing spacecraft concept that contactlessly detumbles orbital debris with a robot-arm-mounted YBCO superconducting coil, then captures it — with the coil's multiphysics, the mission planning, and the control problem all backed by working simulation code.",
+    stack: ["Python", "FEniCSx", "Gmsh", "Rust", "PETSc", "magpylib", "DDPG"],
+    equations: [
+      {
+        label: "Eddy-current detumbling torque",
+        equation:
+          "\\tau = -\\frac{\\sigma_{eff} V}{\\mu_0^2}\\,(B \\times (\\omega \\times B))",
+        note:
+          "A time-varying field through the target's conductive structure induces eddy currents whose secondary field opposes the relative rotation, bleeding off angular momentum without contact.",
+      },
+      {
+        label: "HTS E-J power law",
+        equation: "E = E_c\\left(\\frac{J}{J_c(T, B)}\\right)^{n}",
+        note:
+          "The coil quench simulation resolves the sharp superconducting-to-normal transition through the E-J power law, with critical current density dependent on local temperature and field.",
+      },
+    ],
+    sections: [
+      {
+        title: "Concept",
+        body: [
+          "Most orbital debris is tumbling, and you cannot grapple what you cannot slow down. SCRAP's answer is contactless: a high-temperature superconducting coil at the end-effector of a robotic arm induces eddy currents in the target's conductive structure, removing angular momentum before capture — no plume impingement, no mechanical contact with an uncooperative object.",
+          "The extended abstract for AIAA SciTech 2027 covers the concept of operations, mission planning, subsystem design, and risk assessment, with co-authors spanning Lockheed Martin, Astranis, and Boeing.",
+        ],
+      },
+      {
+        title: "My contributions",
+        body: [
+          "The concept only closes if the coil survives its own physics. I built a coupled electromagnetic-thermal quench simulation of the YBCO pancake coil in FEniCSx: an H-formulation EM solve with E-J power-law resistivity and per-turn tape meshing, staggered against an axisymmetric heat equation with radiation and cold-finger boundary conditions. It establishes safe transport-current margins and whether passive radiative cooling can hold the coil below its 92 K critical temperature.",
+          "Mission planning runs on spacedb, the space-object database and servicing-route planner built alongside this project, and DDPG reinforcement-learning agents were trained on the eddy-current detumbling dynamics to explore closed-loop control.",
+        ],
+        bullets: [
+          "Quench detection, adaptive time-stepping, and per-turn loss/hotspot resolution.",
+          "Field-strength versus operating-range trades for the coil at the target's center of mass.",
+          "Target selection and multi-target servicing routes over the full public catalog.",
+        ],
+      },
+    ],
+  },
   "diffusion-ebm": {
     slug: "diffusion-ebm",
     eyebrow: "Masked diffusion + factor graphs",
@@ -326,5 +370,29 @@ export const projectDetails: Record<string, ProjectDetail> = {
         ]
       }
     ]
-  }
+  },
+  "any-nix-bootstrap": {
+    slug: "any-nix-bootstrap",
+    eyebrow: "Trust-minimized bootstrapping",
+    title: "any-nix-bootstrap",
+    deck:
+      "How much software must you trust before you can trust your compiler? This project drives the answer down to an 813-byte auditable seed, then builds all the way up to any modern Nix package, offline, from one hash-verified ball of sources.",
+    stack: ["POSIX sh", "live-bootstrap", "GNU Guix", "Nix", "musl", "qemu"],
+    sections: [
+      {
+        title: "The chain",
+        body: [
+          "Starting from live-bootstrap's hex0/kaem seed binaries (813 bytes of auditable machine code), the chain builds up through GCC 15, musl, Python, and Guile; uses that sysroot to build GNU Guix from source; uses Guix to build Nix; and finally builds any requested nixpkgs package — with every source hash-pinned in a single manifest and no network access during builds.",
+          "The project is deliberately data-over-code: the manifest of SHA256-verified sources is the project, and the driver is a thin POSIX-sh orchestrator with one file per stage and one adapter per environment (chroot, qemu, bare metal). The qemu and metal paths produce self-building boot media that bootstrap themselves from the seed, air-gapped.",
+        ],
+      },
+      {
+        title: "Status and war stories",
+        body: [
+          "Stage 1 — seed to a full GCC 15/musl/Python/Guile sysroot — has executed end-to-end on real hardware, verified against 314 hash-pinned distfiles including deterministically regenerated git tarballs. Stage 2 (Guix on musl) is deep in its first real execution; stages 3 and 4 are written and statically verified.",
+          "The debugging log is half the value: rebuilding Guile shared to fix a C-extension segfault, stubbing musl's missing execinfo.h, and repeatedly fixing 2003-era K&R code that GCC 15's new C23 default now rejects. Bootstrapping is archaeology with a linker.",
+        ],
+      },
+    ],
+  },
 };

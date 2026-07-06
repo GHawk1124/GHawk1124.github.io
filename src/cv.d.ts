@@ -131,6 +131,8 @@ interface Projects {
   url?: string;
   github?: string;
   demo?: string;
+  paper?: string;
+  report?: string;
 }
 
 interface Interests {
