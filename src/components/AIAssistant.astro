@@ -63,9 +63,12 @@ const cvContextString = JSON.stringify(cvSummary);
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" class="fill-skin-base"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
       </div>
       <div>
-        <h4 class="font-bold text-base text-skin-base">Local WebGPU AI Chat</h4>
+        <h4 class="font-bold text-base text-skin-base">Chat with my resume &amp; projects</h4>
         <p class="text-sm text-skin-muted mt-1 px-4 leading-relaxed">
-          Chat with an AI model running <strong>100% locally</strong> in your browser via WebGPU. No data leaves your machine.
+          This assistant knows my full resume, work history, and every project on this site. Ask it anything, from the SCRAP coil physics to what I did at Lockheed Martin.
+        </p>
+        <p class="text-sm text-skin-muted mt-2 px-4 leading-relaxed">
+          It runs <strong>100% locally</strong> in your browser via WebGPU. No data leaves your machine.
         </p>
       </div>
       
@@ -132,13 +135,13 @@ const cvContextString = JSON.stringify(cvSummary);
         <span class="text-[11px] font-sc tracking-wider uppercase font-bold text-skin-muted">Suggested Topics:</span>
         <div class="grid grid-cols-1 gap-1">
           <button class="quick-prompt-chip text-left text-sm px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
-            What is Garrett's experience?
+            What did Garrett work on at Lockheed Martin?
           </button>
           <button class="quick-prompt-chip text-left text-sm px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
-            Tell me about his Rust 6-DOF simulator
+            How does SCRAP detumble space debris?
           </button>
           <button class="quick-prompt-chip text-left text-sm px-2.5 py-1.5 rounded-lg border border-skin-muted/25 text-skin-muted hover:text-skin-base hover:bg-skin-button-muted/30 transition duration-150 cursor-pointer leading-tight">
-            What are his engineering skills?
+            Tell me about Valurile, his GPU CFD solver
           </button>
         </div>
       </div>
@@ -185,6 +188,12 @@ const cvContextString = JSON.stringify(cvSummary);
   #ai-chat-messages::-webkit-scrollbar-thumb {
     background-color: rgba(var(--color-text-muted), 0.3);
     border-radius: 2px;
+  }
+
+  /* Before the chat is initialized, size the drawer to its content so no
+     empty space pools under the initialize button. */
+  #ai-assistant-drawer:has(#ai-state-chat.hidden) {
+    height: auto;
   }
 </style>
 

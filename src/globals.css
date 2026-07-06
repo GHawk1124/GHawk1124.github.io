@@ -302,6 +302,15 @@
   box-shadow: 0 14px 42px rgba(var(--color-text-base), 0.06);
 }
 
+/* Experience entries share the project-card surface for readability */
+.experience-card-custom {
+  background: rgba(var(--color-fill), 0.6);
+  border: 1px solid rgba(var(--muted), 0.55);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 /* Timeline Custom styling */
 .timeline-custom {
   position: relative;
