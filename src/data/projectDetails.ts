@@ -67,55 +67,82 @@ export const projectDetails: Record<string, ProjectDetail> = {
   },
   "diffusion-ebm": {
     slug: "diffusion-ebm",
-    eyebrow: "Masked diffusion + factor graphs on THRML",
+    eyebrow: "Thermodynamic sampling vs GPUs for molecular design",
     title: "Thermodynamic Sampling Unit Research",
     deck:
-      "A research prototype that asks whether explicit factor-graph structure can improve multi-mask agreement when a masked-diffusion language model only supplies per-position logits.",
-    stack: ["Python 3.12", "PyTorch", "JAX", "transformers", "THRML", "marimo", "CUDA"],
+      "How much of a protein or drug design library can you discover per joule, and does thermodynamic sampling hardware actually beat a GPU at it? This is an honest, reproducible energy comparison on real coevolutionary physics, careful throughout about the gap between a headline number and a deliverable.",
+    stack: ["Python", "JAX", "NumPy", "THRML", "PyTorch"],
     equations: [
       {
-        label: "Factor graph objective",
+        label: "Potts design landscape",
         equation:
-          "p(x \\mid c) \\propto \\exp\\!\\left(\\sum_i \\phi_i(x_i; c) + \\sum_{(i,j)} \\psi_{ij}(x_i, x_j; c)\\right)",
+          "H(x) = \\sum_{i} h_i(x_i) + \\sum_{(i,j) \\in E} J_{ij}(x_i, x_j)",
         note:
-          "The language model supplies unary scores for each masked position. Equality or learned pairwise factors add cross-position structure that is absent from independent sampling."
+          "The design problem is a sparse 20-state Potts model over sequence positions, the standard sequence-statistical model of a protein family. Each target motif should sit in its own deep, separated basin.",
       },
       {
-        label: "Block-Gibbs update",
+        label: "Sampling-stage energy ratio",
         equation:
-          "p(x_B \\mid x_{\\setminus B}, c) \\propto \\exp\\!\\left(\\sum_{i \\in B} \\phi_i(x_i) + \\sum_{(i,j) \\in \\partial B} \\psi_{ij}(x_i, x_j)\\right)",
+          "R_{\\text{sampling}} = c_{\\text{flip}} \\cdot r \\approx 100 \\times 10^{4} = 10^{6}",
         note:
-          "THRML samples blocks of categorical variables jointly so agreement constraints can be satisfied within a fixed neural-forward budget."
-      }
+          "A digital Potts flip costs about a hundred operations, and the published p-bit anchor dissipates about ten thousand times less energy per flip. For equal library coverage the sampling stage is about a million times cheaper on the device.",
+      },
+      {
+        label: "End-to-end ceiling",
+        equation: "R \\le \\frac{1 + D/F}{D/F}",
+        note:
+          "The deliverable is the whole pipeline, not the sampling stage. Exact target matching costs the same on both platforms and is not accelerated, so it caps the end-to-end ratio no matter how cheap sampling becomes.",
+      },
     ],
     sections: [
       {
-        title: "Problem",
+        title: "The question",
         body: [
-          "Masked-diffusion language models can produce strong local token distributions while still filling related holes inconsistently. The project uses deliberately small prompt templates where several masked positions should agree, then compares joint sampling against Mask-Predict and top-k ancestral baselines.",
-          "The point is not to build a production decoder. It is to isolate one question: when neural forwards are expensive, can symbolic or learned factors recover useful joint signal from a single model call?"
-        ]
+          "A thermodynamic sampling unit draws samples from a Boltzmann distribution by letting a physical system relax under its own thermal noise, rather than computing each sample with arithmetic on a processor. Extropic and others pitch this as cheaper, better sampling.",
+          "I wanted a concrete answer to a narrower question that a protein or drug design team would actually care about. For a fixed energy budget, how much of a target library of distinct functional sequences can you find, and does the device beat a GPU at finding it?",
+        ],
       },
       {
-        title: "Implementation",
+        title: "Why per-sample accuracy is the wrong axis",
         body: [
-          "The repository builds candidate sets from MDLM logits, constructs factor graphs with hard equality or learned pairwise factors, and evaluates agreement, perplexity, and forward-pass cost across controlled templates.",
-          "Notebook and experiment entrypoints keep the workflow inspectable: smoke tests, Pareto sweeps, boundary-template analysis, and a learned-factor training scaffold."
+          "The usual pitch is that the hardware draws better individual samples, and that claim is hard to defend. Over a long sequence of exact-ground-truth tests on frustrated Potts models, annealed importance sampling, a single-machine classical algorithm, matched or beat parallel tempering and block-Gibbs on every quantity I could check exactly. It anneals from infinite temperature, so its chains never have to cross an energy barrier. On accuracy alone the device has no moat.",
+          "Design workloads do not live on that axis anyway. Protein design, library screening, and coevolutionary generative modeling all want many valid, distinct candidates spanning a landscape, produced under a hard energy budget. The figure of merit is coverage per joule, and that is where a sampler's cheap draws start to matter.",
+        ],
+      },
+      {
+        title: "The sampling-energy result",
+        body: [
+          "On the sampling stage the arithmetic is clean. A digital Potts flip costs about a hundred operations, and the published p-bit energy anchor is about ten thousand times cheaper per flip, so the sampling-stage energy ratio is about a million. For equal coverage of a twenty-target library the device spends roughly a million times less sampling energy than a GPU, and at a small fixed budget the gap is qualitative, about one percent coverage on the GPU against full coverage on the device.",
+          "To pin down what the device has to beat, I ran a coverage gate across 59 randomized landscapes and measured the trials needed for a 99 percent chance of covering all twenty targets, scoring with a genuine Hamming-recovery metric rather than a lenient nearest-label one.",
         ],
         bullets: [
-          "Core comparison: THRML joint sampling versus Mask-Predict and independent top-k sampling.",
-          "Boundary cases: long-distance agreement, multiple groups, distractors, polysemy, and degenerate candidate sets.",
-          "Learned-factor scaffold: Joint-Transition NCE over masked-position hidden states."
-        ]
+          "Requirement of roughly ten thousand trials by point estimate, up to about twenty-five thousand under a conservative posterior screen.",
+          "Coupon-collector scaling, so full coverage needs on the order of K log K chains on either platform and the only lever is the energy per chain.",
+          "The genuine recovery metric makes the coverage gap sharper, not weaker, than a lenient assignment metric would.",
+        ],
       },
       {
-        title: "What it shows",
+        title: "The honest end-to-end story",
         body: [
-          "On the controlled equality tasks, the factor graph can reach perfect agreement with one language-model forward where iterative baselines spend more forwards and still miss harder constraints.",
-          "The useful lesson is mechanical: if the candidate state space contains a valid joint assignment, explicit structure can make that assignment reachable without asking the neural model to rediscover it repeatedly."
-        ]
-      }
-    ]
+          "A million-to-one sampling ratio is not what a real query delivers. A usable coverage run also programs the device, reads out every sample, and matches each readout against the targets on a host. That digital matching stage costs the same on both platforms and is not sped up by the sampler, so it caps the end-to-end ratio the way a serial fraction caps a parallel speedup.",
+          "Under a latency proxy that ceiling is a few thousand, far below the sampling ratio, and the true end-to-end energy ratio stays unmeasured because no public device specification supports one. The encoding of a twenty-state variable is a second-order effect next to that digital bottleneck. The point is that the binding constraint is the pipeline, not the device, and quoting the raw sampling ratio would hide it.",
+        ],
+      },
+      {
+        title: "Stress test on real protein physics",
+        body: [
+          "A synthetic landscape guarantees clean, separated basins. Real protein design does not. I rebuilt the objective on real RAS-superfamily couplings, a mean-field model of the family and an independently calibrated pseudo-likelihood model of human KRAS, and added a binding reward on the real contact graph. The coverage advantage then depends on two conditions. The target sequences have to form separate basins, and those basins have to be reachable by a short sampling run. Natural within-family targets fail the first one, because they share a conserved core that the design pressure reinforces until every target collapses into a single consensus basin.",
+          "That collapse is a property of rewarding the whole sequence, not of real physics. Real multi-specificity binders share a fold and differ only at a localized binding interface. Placing the reward only on interface contacts over a stable scaffold restores full separation and near-complete coverage from targets that are more than eighty percent identical overall. A forty percent interface reaches ninety-six percent coverage where whole-sequence reward reaches about a third, so the energy arithmetic survives on realistic design problems once the objective is written the way practitioners actually write it.",
+        ],
+      },
+      {
+        title: "Where this started",
+        body: [
+          "The project began on a different question. I paired a pretrained masked-diffusion language model with a THRML block-Gibbs sampler over a sparse factor graph, to see whether explicit structure could improve agreement across several masked positions at a fixed number of neural forward passes. Joint decoding beat independent argmax by seven to fifteen points on held-out text.",
+          "Testing the stronger claim that classical samplers could not escape the same barriers, I found that they could, which is what turned the work toward the energy-and-coverage question above. Everything is CPU simulation with review-gated claims. An early million-to-one headline was scoped down to a precise conditional one, the pipeline reproduces bit for bit, and it passes nine of nine regression tests.",
+        ],
+      },
+    ],
   },
   valurile: {
     slug: "valurile",

@@ -7,7 +7,7 @@
     "image": "/avatar.png",
     "email": "garrett.comes@gatech.edu",
     "url": "https://garrettcomes.me",
-    "summary": "Aerospace engineer trained at Georgia Tech with a propulsion concentration. Four summers at Lockheed Martin Space in Denver supporting propulsion design and analysis on flight programs. I build my own tools in Rust and Python: GPU CFD solvers, superconducting-coil multiphysics, orbital analysis, embedded control, reproducible build tracing, and sampling research on thermodynamic hardware.",
+    "summary": "I am an aerospace engineer trained at Georgia Tech with a propulsion concentration. I spent four summers at Lockheed Martin Space in Denver supporting propulsion design and analysis on flight programs. I build my own tools in Rust and Python, from GPU CFD solvers and superconducting-coil multiphysics to orbital analysis, embedded control, reproducible build tracing, and sampling research on thermodynamic hardware.",
     "theme": "parchment",
     "location": {
       "address": "Lockheed Martin Space",
@@ -62,8 +62,8 @@
       "responsibilities": [
         "Design and analyze propulsion hardware and fluid-system components, including valves, interfaces, and test support equipment.",
         "Create and maintain Creo CAD models, layouts, and drawings for propulsion assemblies and related mechanical hardware.",
-        "Perform CFD and slosh analysis to study pressure losses, transient loads, propellant behavior, and system-level fluid risks.",
-        "Build magnetic simulation models and test approaches for magnetically actuated or sensed hardware, then correlate analysis with bench and system testing.",
+        "Perform slosh and fluid-structure-interaction analysis in Ansys and pure slosh CFD in FLOW-3D, studying pressure losses, transient loads, propellant behavior, and system-level fluid risks.",
+        "Build magnetic simulation models driven by optimization methods for magnetically actuated or sensed hardware, sizing designs against requirements, then correlate the analysis with bench and system testing.",
         "Support propulsion hardware test campaigns, requirements verification, anomaly investigation, and cross-functional design reviews with systems, manufacturing, and test teams."
       ],
       "achievements": [
@@ -163,6 +163,7 @@
         "Eddy-current detumbling physics, DDPG detumbling agents, and mission planning via spacedb",
         "Extended abstract with co-authors from Lockheed Martin, Astranis, and Boeing"
       ],
+      "github": "https://github.com/SCRAPSAT",
       "paper": "/pdfs/SCRAP_SciTech_2027_Extended_Abstract.pdf",
       "report": "/pdfs/FinalReportSCRAP.pdf"
     },
@@ -170,13 +171,12 @@
       "name": "Thermodynamic Sampling Unit Research",
       "slug": "diffusion-ebm",
       "isActive": true,
-      "description": "Research combining masked-diffusion language-model logits with a sparse factor-graph sampler on Extropic's THRML simulator, improving multi-mask consistency at a fixed neural-forward budget.",
+      "description": "Independent research on when thermodynamic sampling hardware (Extropic's TSU) beats GPUs on the energy cost of protein and drug design, grounded in a preprint and an earlier study that paired a masked-diffusion language model with THRML block-Gibbs decoding.",
       "highlights": [
-        "THRML joint sampler, hard-equality factors, and learned pairwise-factor scaffold",
-        "Pareto sweeps against Mask-Predict and top-k ancestral baselines",
-        "Python 3.12, PyTorch, JAX, transformers, marimo notebooks, and CUDA workflows"
-      ],
-      "github": "https://github.com/GHawk1124/diffusion-ebm"
+        "About 10^6x less sampling energy than a GPU for equal design-library coverage, with the end-to-end ratio honestly bounded by digital readout and matching",
+        "Coverage measured across 59 randomized Potts landscapes and stress-tested on real RAS-superfamily coevolutionary physics",
+        "Earlier THRML joint decoding beat independent argmax by 7 to 15 points, all review-gated, reproducible bit-for-bit, and passing 9 of 9 regression tests"
+      ]
     },
     {
       "name": "Valurile",
